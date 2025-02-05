@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/ja/CompSci/CLearning/OpenGlStuff
+CMAKE_SOURCE_DIR = /home/ja/CompSci/CThings/open_gl_c
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/ja/CompSci/CLearning/OpenGlStuff/build
+CMAKE_BINARY_DIR = /home/ja/CompSci/CThings/open_gl_c/build
 
 # Include any dependencies generated for this target.
 include CMakeFiles/OpenglThing.dir/depend.make
@@ -73,32 +73,32 @@ CMakeFiles/OpenglThing.dir/codegen:
 .PHONY : CMakeFiles/OpenglThing.dir/codegen
 
 CMakeFiles/OpenglThing.dir/source.c.o: CMakeFiles/OpenglThing.dir/flags.make
-CMakeFiles/OpenglThing.dir/source.c.o: /home/ja/CompSci/CLearning/OpenGlStuff/source.c
+CMakeFiles/OpenglThing.dir/source.c.o: /home/ja/CompSci/CThings/open_gl_c/source.c
 CMakeFiles/OpenglThing.dir/source.c.o: CMakeFiles/OpenglThing.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/ja/CompSci/CLearning/OpenGlStuff/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building C object CMakeFiles/OpenglThing.dir/source.c.o"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/OpenglThing.dir/source.c.o -MF CMakeFiles/OpenglThing.dir/source.c.o.d -o CMakeFiles/OpenglThing.dir/source.c.o -c /home/ja/CompSci/CLearning/OpenGlStuff/source.c
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/ja/CompSci/CThings/open_gl_c/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building C object CMakeFiles/OpenglThing.dir/source.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/OpenglThing.dir/source.c.o -MF CMakeFiles/OpenglThing.dir/source.c.o.d -o CMakeFiles/OpenglThing.dir/source.c.o -c /home/ja/CompSci/CThings/open_gl_c/source.c
 
 CMakeFiles/OpenglThing.dir/source.c.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing C source to CMakeFiles/OpenglThing.dir/source.c.i"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/ja/CompSci/CLearning/OpenGlStuff/source.c > CMakeFiles/OpenglThing.dir/source.c.i
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/ja/CompSci/CThings/open_gl_c/source.c > CMakeFiles/OpenglThing.dir/source.c.i
 
 CMakeFiles/OpenglThing.dir/source.c.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/OpenglThing.dir/source.c.s"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/ja/CompSci/CLearning/OpenGlStuff/source.c -o CMakeFiles/OpenglThing.dir/source.c.s
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/ja/CompSci/CThings/open_gl_c/source.c -o CMakeFiles/OpenglThing.dir/source.c.s
 
 CMakeFiles/OpenglThing.dir/src/gl.c.o: CMakeFiles/OpenglThing.dir/flags.make
-CMakeFiles/OpenglThing.dir/src/gl.c.o: /home/ja/CompSci/CLearning/OpenGlStuff/src/gl.c
+CMakeFiles/OpenglThing.dir/src/gl.c.o: /home/ja/CompSci/CThings/open_gl_c/src/gl.c
 CMakeFiles/OpenglThing.dir/src/gl.c.o: CMakeFiles/OpenglThing.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/ja/CompSci/CLearning/OpenGlStuff/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building C object CMakeFiles/OpenglThing.dir/src/gl.c.o"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/OpenglThing.dir/src/gl.c.o -MF CMakeFiles/OpenglThing.dir/src/gl.c.o.d -o CMakeFiles/OpenglThing.dir/src/gl.c.o -c /home/ja/CompSci/CLearning/OpenGlStuff/src/gl.c
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/ja/CompSci/CThings/open_gl_c/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building C object CMakeFiles/OpenglThing.dir/src/gl.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/OpenglThing.dir/src/gl.c.o -MF CMakeFiles/OpenglThing.dir/src/gl.c.o.d -o CMakeFiles/OpenglThing.dir/src/gl.c.o -c /home/ja/CompSci/CThings/open_gl_c/src/gl.c
 
 CMakeFiles/OpenglThing.dir/src/gl.c.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing C source to CMakeFiles/OpenglThing.dir/src/gl.c.i"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/ja/CompSci/CLearning/OpenGlStuff/src/gl.c > CMakeFiles/OpenglThing.dir/src/gl.c.i
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/ja/CompSci/CThings/open_gl_c/src/gl.c > CMakeFiles/OpenglThing.dir/src/gl.c.i
 
 CMakeFiles/OpenglThing.dir/src/gl.c.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling C source to assembly CMakeFiles/OpenglThing.dir/src/gl.c.s"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/ja/CompSci/CLearning/OpenGlStuff/src/gl.c -o CMakeFiles/OpenglThing.dir/src/gl.c.s
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/ja/CompSci/CThings/open_gl_c/src/gl.c -o CMakeFiles/OpenglThing.dir/src/gl.c.s
 
 # Object files for target OpenglThing
 OpenglThing_OBJECTS = \
@@ -116,7 +116,7 @@ OpenglThing: /usr/lib/libglfw.so.3.4
 OpenglThing: /usr/lib/libGLX.so
 OpenglThing: /usr/lib/libOpenGL.so
 OpenglThing: CMakeFiles/OpenglThing.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/ja/CompSci/CLearning/OpenGlStuff/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking C executable OpenglThing"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/ja/CompSci/CThings/open_gl_c/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking C executable OpenglThing"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/OpenglThing.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -128,6 +128,6 @@ CMakeFiles/OpenglThing.dir/clean:
 .PHONY : CMakeFiles/OpenglThing.dir/clean
 
 CMakeFiles/OpenglThing.dir/depend:
-	cd /home/ja/CompSci/CLearning/OpenGlStuff/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/ja/CompSci/CLearning/OpenGlStuff /home/ja/CompSci/CLearning/OpenGlStuff /home/ja/CompSci/CLearning/OpenGlStuff/build /home/ja/CompSci/CLearning/OpenGlStuff/build /home/ja/CompSci/CLearning/OpenGlStuff/build/CMakeFiles/OpenglThing.dir/DependInfo.cmake "--color=$(COLOR)"
+	cd /home/ja/CompSci/CThings/open_gl_c/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/ja/CompSci/CThings/open_gl_c /home/ja/CompSci/CThings/open_gl_c /home/ja/CompSci/CThings/open_gl_c/build /home/ja/CompSci/CThings/open_gl_c/build /home/ja/CompSci/CThings/open_gl_c/build/CMakeFiles/OpenglThing.dir/DependInfo.cmake "--color=$(COLOR)"
 .PHONY : CMakeFiles/OpenglThing.dir/depend
 

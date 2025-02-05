@@ -8,8 +8,8 @@ set(CMAKE_DEPENDS_LANGUAGES
 
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
-  "/home/ja/CompSci/CLearning/OpenGlStuff/source.c" "CMakeFiles/OpenglThing.dir/source.c.o" "gcc" "CMakeFiles/OpenglThing.dir/source.c.o.d"
-  "/home/ja/CompSci/CLearning/OpenGlStuff/src/gl.c" "CMakeFiles/OpenglThing.dir/src/gl.c.o" "gcc" "CMakeFiles/OpenglThing.dir/src/gl.c.o.d"
+  "/home/ja/CompSci/CThings/open_gl_c/source.c" "CMakeFiles/OpenglThing.dir/source.c.o" "gcc" "CMakeFiles/OpenglThing.dir/source.c.o.d"
+  "/home/ja/CompSci/CThings/open_gl_c/src/gl.c" "CMakeFiles/OpenglThing.dir/src/gl.c.o" "gcc" "CMakeFiles/OpenglThing.dir/src/gl.c.o.d"
   "" "OpenglThing" "gcc" "CMakeFiles/OpenglThing.dir/link.d"
   )
 

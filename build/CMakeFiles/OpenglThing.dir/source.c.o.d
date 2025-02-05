@@ -1,8 +1,7 @@
 CMakeFiles/OpenglThing.dir/source.c.o: \
- /home/ja/CompSci/CLearning/OpenGlStuff/source.c \
- /usr/include/stdc-predef.h \
- /home/ja/CompSci/CLearning/OpenGlStuff/include/glad/gl.h \
- /home/ja/CompSci/CLearning/OpenGlStuff/include/KHR/khrplatform.h \
+ /home/ja/CompSci/CThings/open_gl_c/source.c /usr/include/stdc-predef.h \
+ /home/ja/CompSci/CThings/open_gl_c/include/glad/gl.h \
+ /home/ja/CompSci/CThings/open_gl_c/include/KHR/khrplatform.h \
  /usr/lib/gcc/x86_64-pc-linux-gnu/14.2.1/include/stdint.h \
  /usr/include/stdint.h /usr/include/bits/libc-header-start.h \
  /usr/include/features.h /usr/include/features-time64.h \
@@ -22,11 +21,11 @@ CMakeFiles/OpenglThing.dir/source.c.o: \
  /usr/include/bits/types/cookie_io_functions_t.h \
  /usr/include/bits/stdio_lim.h /usr/include/bits/floatn.h \
  /usr/include/bits/floatn-common.h \
- /home/ja/CompSci/CLearning/OpenGlStuff/include/linmath/linmath.h \
+ /home/ja/CompSci/CThings/open_gl_c/include/linmath/linmath.h \
  /usr/include/math.h /usr/include/bits/math-vector.h \
  /usr/include/bits/libm-simd-decl-stubs.h \
  /usr/include/bits/flt-eval-method.h /usr/include/bits/fp-logb.h \
- /usr/include/bits/fp-fast.h /usr/include/bits/mathcalls-macros.h \
+ /usr/include/bits/fp-fast.h \
  /usr/include/bits/mathcalls-helper-functions.h \
  /usr/include/bits/mathcalls.h /usr/include/string.h \
  /usr/include/bits/types/locale_t.h /usr/include/bits/types/__locale_t.h \

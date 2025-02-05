@@ -4,7 +4,7 @@
 # compile C with /usr/bin/cc
 C_DEFINES = 
 
-C_INCLUDES = -I/home/ja/CompSci/CLearning/OpenGlStuff/include
+C_INCLUDES = -I/home/ja/CompSci/CThings/open_gl_c/include
 
 C_FLAGS = 
 
