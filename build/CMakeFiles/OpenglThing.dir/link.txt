@@ -1,1 +1,0 @@
-/usr/bin/cc -Wl,--dependency-file=CMakeFiles/OpenglThing.dir/link.d CMakeFiles/OpenglThing.dir/source.c.o CMakeFiles/OpenglThing.dir/src/gl.c.o -o OpenglThing  /usr/lib/libglfw.so.3.4 /usr/lib/libGLX.so /usr/lib/libOpenGL.so

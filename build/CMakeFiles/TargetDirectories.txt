@@ -1,3 +1,0 @@
-/home/ja/CompSci/CThings/open_gl_c/build/CMakeFiles/OpenglThing.dir
-/home/ja/CompSci/CThings/open_gl_c/build/CMakeFiles/edit_cache.dir
-/home/ja/CompSci/CThings/open_gl_c/build/CMakeFiles/rebuild_cache.dir
