@@ -1,0 +1,3 @@
+/home/ja/CompSci/CLearning/OpenGlStuff/build/CMakeFiles/OpenglThing.dir
+/home/ja/CompSci/CLearning/OpenGlStuff/build/CMakeFiles/edit_cache.dir
+/home/ja/CompSci/CLearning/OpenGlStuff/build/CMakeFiles/rebuild_cache.dir
