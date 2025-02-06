@@ -44,6 +44,45 @@ char* readShaderFile(char *filename) {
     return buffer;
 }
 
+int setupShaders(void) {
+    //vertex shader stuff
+    const char* vertexSource = readShaderFile("../shader.vert");
+    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertexShader, 1, &vertexSource, NULL);
+    glCompileShader(vertexShader);
+
+    GLint status;
+    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &status);
+    if !(status == GLFW_TRUE) {
+      printf("There was a problem compiling the Vertex shader!!\n");
+      return 1;
+    }
+
+    //fragment shader stuff
+    const char* fragmentSource = readShaderFile("../shader.frag");
+    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
+    glCompileShader(fragmentShader);
+    
+    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &status);
+    if !(status == GLFW_TRUE) {
+      printf("There was a problem compiling the Fragment shader!!!!\n");
+      return 1;
+    }
+    // attach the shaders together
+    GLuint shaderProgram = glCreateProgram();
+    glAttachShader(shaderProgram, vertexShader);
+    glAttachShader(shaderProgram, fragmentShader);
+
+    glBindFragDataLocation(shaderProgram, 0, "fragment");
+
+    glLinkProgram(shaderProgram);
+
+    glUseProgram(shaderProgram);
+
+
+    return 0;
+}
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
@@ -64,9 +103,11 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 
 int main()
 {
-    
 
-    printf("%s\n", readShaderFile("../shader.vert"));
+    GLuint vbo;
+    glGenBuffers(1, &vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
     // Initialize GLFW
     if (!glfwInit()) {
