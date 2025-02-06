@@ -20,6 +20,31 @@ static const Vertex vertices[3] =
     { {   0.5f,  0.5f }, { 0.5f, -0.5f, 0.f } }
 };
 
+
+char* readShaderFile(char *filename) {
+    long file_size;
+    char *buffer;
+    FILE *file = fopen(filename, "rb");
+    if (file == NULL) {
+        printf("Could not open file\n");
+        return "";
+    }
+    fseek(file, 0, SEEK_END);
+    file_size = ftell(file);
+    rewind(file);  
+    buffer = (char *)malloc(file_size + 1);
+    if (buffer == NULL) {
+        printf("Memory allocation failed\n");
+        fclose(file);
+        return "";
+    }
+    fread(buffer, 1, file_size, file);
+    buffer[file_size] = '\0';
+    fclose(file);
+    return buffer;
+}
+
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
@@ -39,6 +64,10 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 
 int main()
 {
+    
+
+    printf("%s\n", readShaderFile("../shader.vert"));
+
     // Initialize GLFW
     if (!glfwInit()) {
         printf("Failed to initialize GLFW\n");
@@ -72,7 +101,7 @@ int main()
     
     // initialize key callbak
     glfwSetKeyCallback(window, key_callback);
-    
+    /* 
     GLuint vertex_buffer;
     glGenBuffers(1, &vertex_buffer);
     glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
@@ -104,7 +133,7 @@ int main()
     glEnableVertexAttribArray(vcol_location);
     glVertexAttribPointer(vcol_location, 3, GL_FLOAT, GL_FALSE,
                           sizeof(Vertex), (void*) offsetof(Vertex, col));
-
+    */
     glfwSwapInterval(1);
     // Main loop
     while (!glfwWindowShouldClose(window)) {
@@ -112,9 +141,11 @@ int main()
         glfwGetFramebufferSize(window, &width, &height);
         // Render
         glClear(GL_COLOR_BUFFER_BIT);
+        /*
         glUseProgram(program);
         glBindVertexArray(vertex_array);
         glDrawArrays(GL_TRIANGLES, 0, 3);
+        */
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         // Swap buffers and poll IO events
         glfwSwapBuffers(window);
