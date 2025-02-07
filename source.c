@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stddef.h>
+#include <math.h>
 
 GLfloat vertices[] =
 {
@@ -137,25 +138,32 @@ int main()
     GLint posAttrib = glGetAttribLocation(shaderProgram, "vPos");
     glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(posAttrib);
-
+    
+    GLint uniColor = glGetUniformLocation(shaderProgram, "triangleColour");
+    glUniform3f(uniColor, 1.0f, 0.0f, 0.0f);
 
     // initialize the glfw callback
     glfwSetErrorCallback(error_callback);
 
-
     // OpenGL settings
     glViewport(0, 0, 800, 600);
     
+    float startTime = glfwGetTime();
     // initialize key callbak
     glfwSetKeyCallback(window, key_callback);
-    glfwSwapInterval(1);
+    glfwSwapInterval(4);
     // Main loop
     while (!glfwWindowShouldClose(window)) {
         int width, height;
+  
+        float currentTime = glfwGetTime();
+        float timeElapsed = currentTime - startTime;
+
         glfwGetFramebufferSize(window, &width, &height);
         // Render
         glClear(GL_COLOR_BUFFER_BIT);
         glUseProgram(shaderProgram);
+        glUniform3f(uniColor, (cos(timeElapsed * 4.0f) + 1.0f) / 2.0f, (sin(timeElapsed * 4.0f) + 1.0f) / 2.0f, 0.0f);
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glDrawArrays(GL_TRIANGLES, 0, 3);
         // Swap buffers and poll IO events
