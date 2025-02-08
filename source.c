@@ -6,25 +6,21 @@
 #include <stddef.h>
 #include <math.h>
 
-GLfloat vertices[] =
-{
-    0.f, 0.25f, 
-    -0.25f, -0.25f,
-    0.25f,  -0.25f, 
-};
-
-
 GLfloat* circlePoints(float radius, int numPoints) {
-    GLfloat vetexes[numPoints * 2 + 2];
-    vetexes[0] = 0.0f;
-    vetexes[1] = 0.0f;
-
-    for (int i; i<numPoints; i++) {
-        float angle = 2.0f * 3.14159f * i/numPoints;
-        vetexes[i+2] = radius * cos(angle);
-        vetexes[i+3] = radius * sin(angle);   
+    GLfloat* vertices = (GLfloat*)malloc((numPoints * 2 + 2) * sizeof(GLfloat));
+    if (vertices == NULL) {
+        printf("Memory allocation failed!\n");
+        return NULL;
     }
-    return vetexes;
+    vertices[0] = 0.0f;
+    vertices[1] = 0.0f;
+
+    for (int i=0; i<numPoints; i++) {
+        float angle = 2.0f * 3.14159f * i/numPoints;
+        vertices[i+2] = radius * cos(angle);
+        vertices[i+3] = radius * sin(angle);   
+    }
+    return vertices;
 }
 
 char* readShaderFile(char *filename) {
@@ -96,6 +92,9 @@ GLuint setupShaders(void) {
     
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
+    
+    free(vertexSource);
+    free(fragmentSource);
 
     return shaderProgram;
 }
@@ -118,13 +117,13 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 }
 
 int main()
-{     
+{  
     // Initialize GLFW
     if (!glfwInit()) {
         printf("Failed to initialize GLFW\n");
         return -1;
     }
-    GLFWwindow* window = glfwCreateWindow(1920, 1080, "OpenGL Window", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(800, 800, "Cunt Window", NULL, NULL);
     if (!window) {
         printf("Failed to create GLFW window\n");
         glfwTerminate();
@@ -137,21 +136,20 @@ int main()
         glfwTerminate();
         return -1;
     }
+    GLfloat* vs= circlePoints(0.5f, 100);
 
     GLuint shaderProgram = setupShaders();
     GLuint vao;
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
     
-    GLfloat* Vs = circlePoints(0.5f, 100);
-    
     GLuint vbo;
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vs), Vs, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, 100 * 2 *sizeof(GLfloat), vs, GL_STATIC_DRAW);
 
     GLint posAttrib = glGetAttribLocation(shaderProgram, "vPos");
-    glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 0, 0);
+    glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 2*sizeof(GLfloat), 0);
     glEnableVertexAttribArray(posAttrib);
    
     GLuint timeAttibute = glGetUniformLocation(shaderProgram, "time");
@@ -164,7 +162,7 @@ int main()
     glfwSetErrorCallback(error_callback);
 
     // OpenGL settings
-    //glViewport(0, 0, 800, 600);
+    glViewport(0, 0, 800, 800);
     
     float startTime = glfwGetTime();
     // initialize key callbak
@@ -178,6 +176,7 @@ int main()
         float timeElapsed = currentTime - startTime;
 
         glfwGetFramebufferSize(window, &width, &height);
+        float aspectRatio = (float)width / (float)height;
         // Render
         glClear(GL_COLOR_BUFFER_BIT);
         glUseProgram(shaderProgram);
@@ -190,7 +189,7 @@ int main()
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
-
+    free(vs);
     // Clean up and exit
     glfwDestroyWindow(window);
     glfwTerminate();
