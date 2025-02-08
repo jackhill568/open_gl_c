@@ -8,9 +8,9 @@
 
 GLfloat vertices[] =
 {
-    0.f, 0.5f, 
-    -0.5f, -0.5f,
-    0.5f,  -0.5f, 
+    0.f, 0.25f, 
+    -0.25f, -0.25f,
+    0.25f,  -0.25f, 
 };
 
 
@@ -111,7 +111,7 @@ int main()
         printf("Failed to initialize GLFW\n");
         return -1;
     }
-    GLFWwindow* window = glfwCreateWindow(800, 600, "OpenGL Window", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(1920, 1080, "OpenGL Window", NULL, NULL);
     if (!window) {
         printf("Failed to create GLFW window\n");
         glfwTerminate();
@@ -138,7 +138,10 @@ int main()
     GLint posAttrib = glGetAttribLocation(shaderProgram, "vPos");
     glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(posAttrib);
-    
+   
+    GLuint timeAttibute = glGetUniformLocation(shaderProgram, "time");
+    glUniform1f(timeAttibute, 0.);
+
     GLint uniColor = glGetUniformLocation(shaderProgram, "triangleColour");
     glUniform3f(uniColor, 1.0f, 0.0f, 0.0f);
 
@@ -146,12 +149,12 @@ int main()
     glfwSetErrorCallback(error_callback);
 
     // OpenGL settings
-    glViewport(0, 0, 800, 600);
+    //glViewport(0, 0, 800, 600);
     
     float startTime = glfwGetTime();
     // initialize key callbak
     glfwSetKeyCallback(window, key_callback);
-    glfwSwapInterval(4);
+    glfwSwapInterval(1);
     // Main loop
     while (!glfwWindowShouldClose(window)) {
         int width, height;
@@ -163,8 +166,10 @@ int main()
         // Render
         glClear(GL_COLOR_BUFFER_BIT);
         glUseProgram(shaderProgram);
+        glUniform1f(timeAttibute, timeElapsed);
         glUniform3f(uniColor, (cos(timeElapsed * 4.0f) + 1.0f) / 2.0f, (sin(timeElapsed * 4.0f) + 1.0f) / 2.0f, 0.0f);
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClearColor(0.f, 0.f, 0.f, 1.f);
+        //glClearColor((sin(timeElapsed * 4.0f) + 1.0f) / 2.0f, 0.3f, (cos(timeElapsed * 4.0f) + 1.0f) / 2.0f, 1.0f);
         glDrawArrays(GL_TRIANGLES, 0, 3);
         // Swap buffers and poll IO events
         glfwSwapBuffers(window);
