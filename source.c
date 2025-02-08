@@ -14,6 +14,19 @@ GLfloat vertices[] =
 };
 
 
+GLfloat* circlePoints(float radius, int numPoints) {
+    GLfloat vetexes[numPoints * 2 + 2];
+    vetexes[0] = 0.0f;
+    vetexes[1] = 0.0f;
+
+    for (int i; i<numPoints; i++) {
+        float angle = 2.0f * 3.14159f * i/numPoints;
+        vetexes[i+2] = radius * cos(angle);
+        vetexes[i+3] = radius * sin(angle);   
+    }
+    return vetexes;
+}
+
 char* readShaderFile(char *filename) {
     long file_size;
     char *buffer;
@@ -129,11 +142,13 @@ int main()
     GLuint vao;
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
-
+    
+    GLfloat* Vs = circlePoints(0.5f, 100);
+    
     GLuint vbo;
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vs), Vs, GL_STATIC_DRAW);
 
     GLint posAttrib = glGetAttribLocation(shaderProgram, "vPos");
     glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 0, 0);
@@ -170,7 +185,7 @@ int main()
         glUniform3f(uniColor, (cos(timeElapsed * 4.0f) + 1.0f) / 2.0f, (sin(timeElapsed * 4.0f) + 1.0f) / 2.0f, 0.0f);
         glClearColor(0.f, 0.f, 0.f, 1.f);
         //glClearColor((sin(timeElapsed * 4.0f) + 1.0f) / 2.0f, 0.3f, (cos(timeElapsed * 4.0f) + 1.0f) / 2.0f, 1.0f);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        glDrawArrays(GL_TRIANGLE_FAN, 0, 102);
         // Swap buffers and poll IO events
         glfwSwapBuffers(window);
         glfwPollEvents();
