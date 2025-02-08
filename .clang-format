@@ -1,0 +1,7 @@
+IncludeCategories:
+  - Regex: '^<glad.*\.h>'
+    Priority: 1
+  - Regex: '^<GLFW.*\.h>'
+    Priority: 2
+  - Regex: '.*'
+    Priority: 3
