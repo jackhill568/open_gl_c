@@ -1,10 +1,9 @@
-#version 330 core
-in vec2 vPos;
-uniform float time;
-void main()
-{
-    vec2 pos = vPos; 
-    //pos.x += sin(time) * 0.25;
-    //pos.y -=tan(time) * 0.25;
-    gl_Position = vec4(pos.x, pos.y, 0.0, 1.0); 
+#version 460 core
+layout(location = 0) in vec2 vpos;
+layout(location = 2) in vec2 vtex;
+layout(location = 1) out vec2 texCoord;
+
+void main() {
+    texCoord = vtex;
+    gl_Position = vec4(vpos, 0.0, 1.0);
 }
