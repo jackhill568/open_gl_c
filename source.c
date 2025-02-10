@@ -7,6 +7,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+GLfloat vertices[] = {0.25f, -0.25f, -0.25f, -0.25f, 0.f, 0.25f};
+
 char *readShaderFile(char *filename) {
   long file_size;
   char *buffer;
@@ -130,12 +132,10 @@ int main() {
   GLuint vbo;
   glGenBuffers(1, &vbo);
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
-  // glBufferData(GL_ARRAY_BUFFER, 100 * 2 * sizeof(GLfloat), {},
-  // GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
   GLint posAttrib = glGetAttribLocation(shaderProgram, "vPos");
-  glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat),
-                        0);
+  glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 0, 0);
   glEnableVertexAttribArray(posAttrib);
 
   GLuint timeAttibute = glGetUniformLocation(shaderProgram, "time");
@@ -172,7 +172,7 @@ int main() {
     glClearColor(0.f, 0.f, 0.f, 1.f);
     // glClearColor((sin(timeElapsed * 4.0f) + 1.0f) / 2.0f, 0.3f,
     // (cos(timeElapsed * 4.0f) + 1.0f) / 2.0f, 1.0f);
-    glDrawArrays(GL_TRIANGLE_FAN, 0, 102);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
     // Swap buffers and poll IO events
     glfwSwapBuffers(window);
     glfwPollEvents();
