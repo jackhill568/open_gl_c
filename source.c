@@ -1,10 +1,9 @@
 #include <glad/gl.h>
 #include <GLFW/glfw3.h>
-#include <math.h>
+#include <linmath/linmath.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
-
 int WIDTH = 2560;
 int HEIGHT = 1440;
 
@@ -110,6 +109,16 @@ GLFWwindow *initOpenGL() {
   return window;
 }
 
+float *flatten_mat4x4(mat4x4 matrix) {
+  float *outArray = malloc(16 * sizeof(float));
+  for (int i = 0; i < 4; i++) {
+    for (int j = 0; j < 4; j++) {
+      outArray[i * 4 + j] = matrix[i][j];
+    }
+  }
+  return outArray;
+}
+
 int main() {
   GLFWwindow *window = initOpenGL();
   if (!window)
@@ -125,6 +134,11 @@ int main() {
   glBindVertexArray(vao);
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
   glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+  mat4x4 trans;
+
+  GLuint unitrans = glGetUniformLocation(shaderProgram, "trans");
+  glUniformMatrix4fv(unitrans, 1, GL_FALSE, flatten_mat4x4(trans));
 
   // Position attribute
   glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0);

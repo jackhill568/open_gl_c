@@ -1,4 +1,5 @@
 #version 460 core
+uniform mat4 trans;
 layout(location = 0) in vec2 vpos;
 
 void main() {
