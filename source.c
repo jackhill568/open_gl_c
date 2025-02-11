@@ -81,30 +81,6 @@ GLuint setupShaders(void) {
   return shaderProgram;
 }
 
-GLuint createGameOfLifeTexture(int width, int height) {
-  GLuint textureID;
-  glGenTextures(1, &textureID);
-  glBindTexture(GL_TEXTURE_2D, textureID);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, width, height, 0, GL_RED, GL_FLOAT,
-               NULL);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-  return textureID;
-}
-
-void initializeGrid(GLuint textureID, int width, int height) {
-  float *data = (float *)malloc(width * height * sizeof(float));
-  for (int i = 0; i < width * height; i++) {
-    data[i] = (float)(rand() % 2);
-  }
-  glBindTexture(GL_TEXTURE_2D, textureID);
-  glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RED, GL_FLOAT,
-                  data);
-  free(data);
-}
-
 GLFWwindow *initOpenGL() {
   if (!glfwInit()) {
     printf("Failed to initialize GLFW\n");
@@ -159,66 +135,16 @@ int main() {
                         (void *)(3 * sizeof(float)));
   glEnableVertexAttribArray(2);
 
-  // Create textures and FBOs for ping-pong
-  GLuint textures[2];
-  textures[0] = createGameOfLifeTexture(WIDTH, HEIGHT);
-  textures[1] = createGameOfLifeTexture(WIDTH, HEIGHT);
-  initializeGrid(textures[0], WIDTH, HEIGHT);
-
-  GLuint fbos[2];
-  glGenFramebuffers(2, fbos);
-  for (int i = 0; i < 2; i++) {
-    glBindFramebuffer(GL_FRAMEBUFFER, fbos[i]);
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D,
-                           textures[i], 0);
-    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-      printf("Framebuffer is not complete!\n");
-      return -1;
-    }
-  }
-
   // Get uniform locations
   glUseProgram(shaderProgram);
-  GLuint texLoc = glGetUniformLocation(shaderProgram, "currentstate");
-  GLuint resLoc = glGetUniformLocation(shaderProgram, "resolution");
-  GLuint mosLoc = glGetUniformLocation(shaderProgram, "mousePos");
-  glUniform2f(resLoc, WIDTH, HEIGHT);
 
-  double lastUpdateTime = glfwGetTime();
-  const double updateInterval = 0.0001;
-  int currentTexture = 0;
-  double xpos, ypos;
   while (!glfwWindowShouldClose(window)) {
-    double currentTime = glfwGetTime();
-
-    if (currentTime - lastUpdateTime >= updateInterval) {
-
-      glfwGetCursorPos(window, &xpos, &ypos);
-      glUniform2f(mosLoc, xpos, ypos);
-      // Update state
-      glBindFramebuffer(GL_FRAMEBUFFER, fbos[1 - currentTexture]);
-      glViewport(0, 0, WIDTH, HEIGHT);
-      glUseProgram(shaderProgram);
-      glActiveTexture(GL_TEXTURE0);
-      glBindTexture(GL_TEXTURE_2D, textures[currentTexture]);
-      glUniform1i(texLoc, 0);
-
-      glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
-
-      // Swap textures
-      currentTexture = 1 - currentTexture;
-      lastUpdateTime = currentTime;
-    }
 
     // Render to screen
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, WIDTH, HEIGHT);
     glClear(GL_COLOR_BUFFER_BIT);
 
     glUseProgram(shaderProgram);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, textures[currentTexture]);
-    glUniform1i(texLoc, 0);
 
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
@@ -226,8 +152,6 @@ int main() {
     glfwPollEvents();
   }
 
-  glDeleteFramebuffers(2, fbos);
-  glDeleteTextures(2, textures);
   glDeleteVertexArrays(1, &vao);
   glDeleteBuffers(1, &vbo);
   glDeleteProgram(shaderProgram);
