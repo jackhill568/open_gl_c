@@ -1,6 +1,7 @@
 #version 460 core
 layout(location = 0) in vec2 vpos;
 layout(location = 2) in vec2 vtex;
+
 layout(location = 1) out vec2 texCoord;
 
 void main() {

@@ -115,7 +115,7 @@ GLFWwindow *initOpenGL() {
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
   GLFWwindow *window =
-      glfwCreateWindow(WIDTH, HEIGHT, "Game of Life", NULL, NULL);
+      glfwCreateWindow(WIDTH, HEIGHT, "Cunt window", NULL, NULL);
   if (!window) {
     printf("Failed to create GLFW window\n");
     glfwTerminate();
@@ -181,20 +181,23 @@ int main() {
   glUseProgram(shaderProgram);
   GLuint texLoc = glGetUniformLocation(shaderProgram, "currentstate");
   GLuint resLoc = glGetUniformLocation(shaderProgram, "resolution");
+  GLuint mosLoc = glGetUniformLocation(shaderProgram, "mousePos");
   glUniform2f(resLoc, WIDTH, HEIGHT);
 
   double lastUpdateTime = glfwGetTime();
-  const double updateInterval = 0.11; // Update every 100ms
+  const double updateInterval = 0.0001;
   int currentTexture = 0;
-
+  double xpos, ypos;
   while (!glfwWindowShouldClose(window)) {
     double currentTime = glfwGetTime();
 
     if (currentTime - lastUpdateTime >= updateInterval) {
+
+      glfwGetCursorPos(window, &xpos, &ypos);
+      glUniform2f(mosLoc, xpos, ypos);
       // Update state
       glBindFramebuffer(GL_FRAMEBUFFER, fbos[1 - currentTexture]);
       glViewport(0, 0, WIDTH, HEIGHT);
-
       glUseProgram(shaderProgram);
       glActiveTexture(GL_TEXTURE0);
       glBindTexture(GL_TEXTURE_2D, textures[currentTexture]);
