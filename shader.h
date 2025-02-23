@@ -1,0 +1,95 @@
+
+#ifndef SHADER_H
+#define SHADER_H
+
+#include <glad/gl.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+typedef struct {
+  int model;
+  int view;
+  int projection;
+} UniformLocations;
+
+typedef struct {
+  GLuint ID;
+  UniformLocations Locs;
+} Shader;
+
+void checkCompileErrors(GLuint shader, char *type) {
+  GLint success;
+  GLchar infoLog[1024];
+  if (type != "PROGRAM") {
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+    if (!success) {
+      glGetShaderInfoLog(shader, 1024, NULL, infoLog);
+      printf("ERROR::SHADER_COMPILATION_ERROR of type: %s\n%s\n", type,
+             infoLog);
+    }
+  } else {
+    glGetProgramiv(shader, GL_LINK_STATUS, &success);
+    if (!success) {
+      glGetProgramInfoLog(shader, 1024, NULL, infoLog);
+      printf("ERROR::PROGRAM_LINKING_ERROR of type: %s\n%s\n", type, infoLog);
+    }
+  }
+}
+char *readShaderFile(char *filename) {
+  FILE *file = fopen(filename, "rb");
+  if (!file) {
+    printf("Could not open file %s\n", filename);
+    return "";
+  }
+  fseek(file, 0, SEEK_END);
+  long size = ftell(file);
+  fseek(file, 0, SEEK_SET);
+  char *buffer = malloc(size + 1);
+  fread(buffer, 1, size, file);
+  buffer[size] = '\0';
+  fclose(file);
+  return buffer;
+}
+void shader_init(Shader *shader, const char *vertexPath,
+                 const char *fragmentPath) {
+  const char *vertexSource = readShaderFile(vertexPath);
+  Shader vertexShader = {glCreateShader(GL_VERTEX_SHADER)};
+  glShaderSource(vertexShader.ID, 1, &vertexSource, NULL);
+  glCompileShader(vertexShader.ID);
+  checkCompileErrors(vertexShader.ID, "VERTEX");
+
+  const char *fragmentSource = readShaderFile(fragmentPath);
+  Shader fragmentShader = {glCreateShader(GL_FRAGMENT_SHADER)};
+  glShaderSource(fragmentShader.ID, 1, &fragmentSource, NULL);
+  glCompileShader(fragmentShader.ID);
+  checkCompileErrors(fragmentShader.ID, "FRAGMENT");
+
+  glAttachShader(shader->ID, vertexShader.ID);
+  glAttachShader(shader->ID, fragmentShader.ID);
+  glLinkProgram(shader->ID);
+  checkCompileErrors(shader->ID, "PROGRAM");
+
+  shader->Locs.model = glGetUniformLocation(shader->ID, "model");
+  shader->Locs.view = glGetUniformLocation(shader->ID, "view");
+  shader->Locs.projection = glGetUniformLocation(shader->ID, "proj");
+
+  glDeleteShader(fragmentShader.ID);
+  glDeleteShader(vertexShader.ID);
+
+  free((void *)vertexSource);
+  free((void *)fragmentSource);
+}
+void shader_use(Shader *shader) { glUseProgram(shader->ID); }
+
+void shader_set_mat4(Shader *shader, const char *name, float *value) {
+  if (strcmp(name, "model") == 0) {
+    glUniformMatrix4fv(shader->Locs.model, 1, GL_FALSE, value);
+  } else if (strcmp(name, "view") == 0) {
+    glUniformMatrix4fv(shader->Locs.view, 1, GL_FALSE, value);
+  } else {
+    glUniformMatrix4fv(shader->Locs.projection, 1, GL_FALSE, value);
+  }
+}
+
+#endif
