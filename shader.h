@@ -21,7 +21,7 @@ typedef struct {
 void checkCompileErrors(GLuint shader, char *type) {
   GLint success;
   GLchar infoLog[1024];
-  if (type != "PROGRAM") {
+  if (strcmp(type, "PROGRAM") != 0) {
     glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
     if (!success) {
       glGetShaderInfoLog(shader, 1024, NULL, infoLog);
@@ -36,7 +36,8 @@ void checkCompileErrors(GLuint shader, char *type) {
     }
   }
 }
-char *readShaderFile(char *filename) {
+char *readShaderFile(const char *filename) {
+
   FILE *file = fopen(filename, "rb");
   if (!file) {
     printf("Could not open file %s\n", filename);
@@ -53,6 +54,9 @@ char *readShaderFile(char *filename) {
 }
 void shader_init(Shader *shader, const char *vertexPath,
                  const char *fragmentPath) {
+
+  shader->ID = glCreateProgram();
+
   const char *vertexSource = readShaderFile(vertexPath);
   Shader vertexShader = {glCreateShader(GL_VERTEX_SHADER)};
   glShaderSource(vertexShader.ID, 1, &vertexSource, NULL);
@@ -76,7 +80,6 @@ void shader_init(Shader *shader, const char *vertexPath,
 
   glDeleteShader(fragmentShader.ID);
   glDeleteShader(vertexShader.ID);
-
   free((void *)vertexSource);
   free((void *)fragmentSource);
 }
