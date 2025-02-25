@@ -8,7 +8,6 @@
 #include "camera.h"
 #include "shader.h"
 #include "window.h"
-#include <stdio.h>
 
 Camera camera;
 float lastX = 400, lastY = 300;
@@ -81,7 +80,7 @@ void mouse_callback(GLFWwindow *window, double xpos, double ypos) {
 int main() {
 
   Window window;
-  if (!window_init(&window, 800, 600, "Cunt Window")) {
+  if (!window_init(&window, 2560, 1440, "Cunt Window")) {
     glfwTerminate();
     return -1;
   }
