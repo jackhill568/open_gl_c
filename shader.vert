@@ -1,9 +1,15 @@
 #version 460 core
-layout(location = 0) in vec2 vpos;
-layout(location = 2) in vec2 vtex;
-layout(location = 1) out vec2 texCoord;
+
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 proj;
+
+layout(location = 0) in vec3 vpos;
+layout(location = 1) in vec3 colour;
+
+layout(location = 2)out vec3 outColour;
 
 void main() {
-    texCoord = vtex;
-    gl_Position = vec4(vpos, 0.0, 1.0);
+    gl_Position = proj * view * model * vec4(vpos, 1.0);
+    outColour = colour;
 }
