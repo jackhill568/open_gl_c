@@ -87,7 +87,7 @@ void make_shape(Shape *shape, vec3 pos, const char *type, float *colour) {
   }
 }
 
-void draw_cube(Shape *shape, ShapeBuffer *cube_buffer, Shader *shader) {
+void draw_shape(Shape *shape, ShapeBuffer *cube_buffer, Shader *shader) {
 
   mat4x4 model;
   mat4x4_translate(model, shape->pos[0], shape->pos[1], shape->pos[2]);

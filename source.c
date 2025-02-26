@@ -137,7 +137,7 @@ int main() {
     shader_set_mat4(&shader, "proj", (float *)projection);
 
     for (int i = 0; i < 5; i++) {
-      draw_cube(&cube[i], &cubes, &shader);
+      draw_shape(&cube[i], &cubes, &shader);
     }
 
     glfwSwapBuffers(window.handle);
