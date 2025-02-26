@@ -1,5 +1,6 @@
 #include <glad/gl.h>
 #include <GLFW/glfw3.h>
+#include "shape.h"
 #include <linmath/linmath.h>
 #include <math.h>
 #include <stdbool.h>
@@ -90,28 +91,15 @@ int main() {
   shader_init(&shader, "../shader.vert", "../shader.frag");
   camera_init(&camera);
 
-  // Setup VAO/VBO
-  GLuint vao, vbo, EBO;
-  glGenVertexArrays(1, &vao);
-  glGenBuffers(1, &vbo);
+  ShapeBuffer cubes;
+  init_shapes(&cubes);
 
-  glBindVertexArray(vao);
-  glBindBuffer(GL_ARRAY_BUFFER, vbo);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+  Shape cube[5];
 
-  glGenBuffers(1, &EBO);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices,
-               GL_STATIC_DRAW);
-
-  // Position attribute
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)0);
-  glEnableVertexAttribArray(0);
-
-  // Texture coord attribute
-  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float),
-                        (void *)(3 * sizeof(float)));
-  glEnableVertexAttribArray(1);
+  for (int i = 0; i < 5; i++) {
+    make_shape(&cube[i], (vec3){2.0f, i * 2, 0.0f}, "cube",
+               (float[]){1.0f, ((float)i / 5), ((float)i / 5) - 0.1});
+  }
 
   // Get uniform locations
   glEnable(GL_DEPTH_TEST);
@@ -145,21 +133,19 @@ int main() {
 
     camera_get_view_matrix(&camera, view);
 
-    shader_set_mat4(&shader, "model", (float *)model);
     shader_set_mat4(&shader, "view", (float *)view);
     shader_set_mat4(&shader, "proj", (float *)projection);
 
-    glBindVertexArray(vao);
-    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-    glBindVertexArray(0);
+    for (int i = 0; i < 5; i++) {
+      draw_cube(&cube[i], &cubes, &shader);
+    }
 
     glfwSwapBuffers(window.handle);
     glfwPollEvents();
   }
 
-  glDeleteVertexArrays(1, &vao);
-  glDeleteBuffers(1, &vbo);
-  glDeleteBuffers(1, &EBO);
+  clean_buffers(&cubes);
+
   // glDeleteProgram(shaderProgram);
   window_cleanup(&window);
   glfwTerminate();
