@@ -91,6 +91,9 @@ int main() {
   shader_init(&shader, "../shader.vert", "../shader.frag");
   camera_init(&camera);
 
+  Shader lightShader;
+  shader_init(&lightShader, "../shader.vert", "../lightShader.frag");
+
   ShapeBuffer cubes;
   init_shapes(&cubes);
 
@@ -98,11 +101,14 @@ int main() {
 
   for (int i = 0; i < 5; i++) {
     make_shape(&cube[i], (vec3){2.0f, i * 2, 0.0f}, "cube",
-               (float[]){1.0f, ((float)i / 5), ((float)i / 5) - 0.1});
+               (float[]){1 * 1.0f / 5, 0.0f, ((float)i / 5) - 0.1});
   }
+  ShapeBuffer lightCube;
+  init_shapes(&lightCube);
+  Shape LightSource;
+  make_shape(&LightSource, (vec3){4, 5, 3}, "cube",
+             (float[]){1.0f, 1.0f, 1.0f});
 
-  // Get uniform locations
-  glEnable(GL_DEPTH_TEST);
   glfwSetInputMode(window.handle, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
   glfwSetCursorPosCallback(window.handle, mouse_callback);
 
@@ -118,7 +124,6 @@ int main() {
     float currentFrame = glfwGetTime();
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
-    shader_use(&shader);
     // Render to screen
     glViewport(0, 0, window.width, window.height);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -135,7 +140,15 @@ int main() {
 
     shader_set_mat4(&shader, "view", (float *)view);
     shader_set_mat4(&shader, "proj", (float *)projection);
+    shader_set_mat4(&shader, "licol", (float *)(vec3){1.0f, 1.0f, 1.0f});
+    shader_set_mat4(&shader, "lipos", (float *)LightSource.pos);
 
+    shader_use(&lightShader);
+    shader_set_mat4(&lightShader, "view", (float *)view);
+    shader_set_mat4(&lightShader, "proj", (float *)projection);
+    draw_shape(&LightSource, &lightCube, &lightShader);
+
+    shader_use(&shader);
     for (int i = 0; i < 5; i++) {
       draw_shape(&cube[i], &cubes, &shader);
     }
@@ -145,7 +158,7 @@ int main() {
   }
 
   clean_buffers(&cubes);
-
+  clean_buffers(&lightCube);
   // glDeleteProgram(shaderProgram);
   window_cleanup(&window);
   glfwTerminate();

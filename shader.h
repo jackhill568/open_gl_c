@@ -11,6 +11,8 @@ typedef struct {
   int model;
   int view;
   int projection;
+  int lightColour;
+  int lightPos;
 } UniformLocations;
 
 typedef struct {
@@ -77,6 +79,7 @@ void shader_init(Shader *shader, const char *vertexPath,
   shader->Locs.model = glGetUniformLocation(shader->ID, "model");
   shader->Locs.view = glGetUniformLocation(shader->ID, "view");
   shader->Locs.projection = glGetUniformLocation(shader->ID, "proj");
+  shader->Locs.lightColour = glGetUniformLocation(shader->ID, "lightColour");
 
   glDeleteShader(fragmentShader.ID);
   glDeleteShader(vertexShader.ID);
@@ -90,8 +93,12 @@ void shader_set_mat4(Shader *shader, const char *name, float *value) {
     glUniformMatrix4fv(shader->Locs.model, 1, GL_FALSE, value);
   } else if (strcmp(name, "view") == 0) {
     glUniformMatrix4fv(shader->Locs.view, 1, GL_FALSE, value);
-  } else {
+  } else if (strcmp(name, "proj") == 0) {
     glUniformMatrix4fv(shader->Locs.projection, 1, GL_FALSE, value);
+  } else if (strcmp(name, "licol") == 0) {
+    glUniform3fv(shader->Locs.lightColour, 1, value);
+  } else if (strcmp(name, "lipos") == 0) {
+    glUniform3fv(shader->Locs.lightPos, 1, value);
   }
 }
 
