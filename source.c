@@ -1,6 +1,7 @@
 #include <glad/gl.h>
 #include <GLFW/glfw3.h>
 #include "shape.h"
+#include <GL/gl.h>
 #include <linmath/linmath.h>
 #include <math.h>
 #include <stdbool.h>
@@ -9,6 +10,9 @@
 #include "camera.h"
 #include "shader.h"
 #include "window.h"
+#include <stdio.h>
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
 
 Camera camera;
 float lastX = 400, lastY = 300;
@@ -16,27 +20,43 @@ bool firstMouse = true;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
-GLfloat vertices[] = {
-    // Positions         // Colors
-    -0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, // Bottom-left-back (Red)
-    0.5f,  -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, // Bottom-right-back (Green)
-    0.5f,  0.5f,  -0.5f, 0.0f, 1.0f, 1.0f, // Top-right-back (Blue)
-    -0.5f, 0.5f,  -0.5f, 1.0f, 0.0f, 1.0f, // Top-left-back (Yellow)
+float vertices[] = {
+    // positions          // normals           // texture coords
+    -0.5f, -0.5f, -0.5f, 0.0f,  0.0f,  -1.0f, 0.0f,  0.0f,  0.5f,  -0.5f,
+    -0.5f, 0.0f,  0.0f,  -1.0f, 1.0f,  0.0f,  0.5f,  0.5f,  -0.5f, 0.0f,
+    0.0f,  -1.0f, 1.0f,  1.0f,  0.5f,  0.5f,  -0.5f, 0.0f,  0.0f,  -1.0f,
+    1.0f,  1.0f,  -0.5f, 0.5f,  -0.5f, 0.0f,  0.0f,  -1.0f, 0.0f,  1.0f,
+    -0.5f, -0.5f, -0.5f, 0.0f,  0.0f,  -1.0f, 0.0f,  0.0f,
 
-    -0.5f, -0.5f, 0.5f,  1.0f, 1.0f, 1.0f, // Bottom-left-front (Purple)
-    0.5f,  -0.5f, 0.5f,  0.0f, 0.0f, 1.0f, // Bottom-right-front (Cyan)
-    0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 1.0f, // Top-right-front (White)
-    -0.5f, 0.5f,  0.5f,  1.0f, 1.0f, 0.0f  // Top-left-front (Black)
-};
+    -0.5f, -0.5f, 0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  0.0f,  0.5f,  -0.5f,
+    0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  0.0f,  0.5f,  0.5f,  0.5f,  0.0f,
+    0.0f,  1.0f,  1.0f,  1.0f,  0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
+    1.0f,  1.0f,  -0.5f, 0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  1.0f,
+    -0.5f, -0.5f, 0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  0.0f,
 
-GLuint indices[] = {
-    0, 1, 2, 0, 2, 3, // Back face
-    4, 5, 6, 4, 6, 7, // Front face
-    3, 2, 6, 3, 6, 7, // Top face
-    0, 1, 5, 0, 5, 4, // Bottom face
-    0, 3, 7, 0, 7, 4, // Left face
-    1, 2, 6, 1, 6, 5  // Right face
-};
+    -0.5f, 0.5f,  0.5f,  -1.0f, 0.0f,  0.0f,  1.0f,  0.0f,  -0.5f, 0.5f,
+    -0.5f, -1.0f, 0.0f,  0.0f,  1.0f,  1.0f,  -0.5f, -0.5f, -0.5f, -1.0f,
+    0.0f,  0.0f,  0.0f,  1.0f,  -0.5f, -0.5f, -0.5f, -1.0f, 0.0f,  0.0f,
+    0.0f,  1.0f,  -0.5f, -0.5f, 0.5f,  -1.0f, 0.0f,  0.0f,  0.0f,  0.0f,
+    -0.5f, 0.5f,  0.5f,  -1.0f, 0.0f,  0.0f,  1.0f,  0.0f,
+
+    0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  0.0f,  0.5f,  0.5f,
+    -0.5f, 1.0f,  0.0f,  0.0f,  1.0f,  1.0f,  0.5f,  -0.5f, -0.5f, 1.0f,
+    0.0f,  0.0f,  0.0f,  1.0f,  0.5f,  -0.5f, -0.5f, 1.0f,  0.0f,  0.0f,
+    0.0f,  1.0f,  0.5f,  -0.5f, 0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  0.0f,
+    0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
+
+    -0.5f, -0.5f, -0.5f, 0.0f,  -1.0f, 0.0f,  0.0f,  1.0f,  0.5f,  -0.5f,
+    -0.5f, 0.0f,  -1.0f, 0.0f,  1.0f,  1.0f,  0.5f,  -0.5f, 0.5f,  0.0f,
+    -1.0f, 0.0f,  1.0f,  0.0f,  0.5f,  -0.5f, 0.5f,  0.0f,  -1.0f, 0.0f,
+    1.0f,  0.0f,  -0.5f, -0.5f, 0.5f,  0.0f,  -1.0f, 0.0f,  0.0f,  0.0f,
+    -0.5f, -0.5f, -0.5f, 0.0f,  -1.0f, 0.0f,  0.0f,  1.0f,
+
+    -0.5f, 0.5f,  -0.5f, 0.0f,  1.0f,  0.0f,  0.0f,  1.0f,  0.5f,  0.5f,
+    -0.5f, 0.0f,  1.0f,  0.0f,  1.0f,  1.0f,  0.5f,  0.5f,  0.5f,  0.0f,
+    1.0f,  0.0f,  1.0f,  0.0f,  0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+    1.0f,  0.0f,  -0.5f, 0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  0.0f,
+    -0.5f, 0.5f,  -0.5f, 0.0f,  1.0f,  0.0f,  0.0f,  1.0f};
 
 static void key_callback(GLFWwindow *window, int key, int scancode, int action,
                          int mods) {
@@ -60,7 +80,40 @@ void key_process(Window window) {
     camera_process_keyboard(&camera, GLFW_KEY_D, deltaTime);
   }
 }
+unsigned int loadTexture(char const *path) {
+  unsigned int textureID;
+  glGenTextures(1, &textureID);
 
+  int width, height, nrComponents;
+  unsigned char *data = stbi_load(path, &width, &height, &nrComponents, 0);
+  if (data) {
+    GLenum format;
+    if (nrComponents == 1)
+      format = GL_RED;
+    else if (nrComponents == 3)
+      format = GL_RGB;
+    else if (nrComponents == 4)
+      format = GL_RGBA;
+
+    glBindTexture(GL_TEXTURE_2D, textureID);
+    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format,
+                 GL_UNSIGNED_BYTE, data);
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+                    GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    stbi_image_free(data);
+  } else {
+    printf("texture fail");
+    stbi_image_free(data);
+  }
+
+  return textureID;
+}
 void mouse_callback(GLFWwindow *window, double xpos, double ypos) {
   if (firstMouse) {
     lastX = xpos;
@@ -81,7 +134,7 @@ void mouse_callback(GLFWwindow *window, double xpos, double ypos) {
 int main() {
 
   Window window;
-  if (!window_init(&window, 2560, 1440, "Cunt Window")) {
+  if (!window_init(&window, 2560, 1440, "Window")) {
     glfwTerminate();
     return -1;
   }
@@ -94,19 +147,37 @@ int main() {
   Shader lightShader;
   shader_init(&lightShader, "../shader.vert", "../lightShader.frag");
 
-  ShapeBuffer cubes;
-  init_shapes(&cubes);
+  GLuint vbo;
+  GLuint vao;
+  glGenBuffers(1, &vbo);
+  glGenVertexArrays(1, &vao);
 
-  Shape cube[5];
+  glBindVertexArray(vao);
+  glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
-  for (int i = 0; i < 5; i++) {
-    make_shape(&cube[i], (vec3){2.0f, i * 2, 0.0f}, "cube",
-               (float[]){1 * 1.0f / 5, 0.0f, ((float)i / 5) - 0.1});
-  }
+  // position
+  glEnableVertexAttribArray(0);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat),
+                        (void *)0);
+
+  // Normals
+  glEnableVertexAttribArray(3);
+  glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat),
+                        (void *)(3 * sizeof(GLfloat)));
+  // texure coords
+  glEnableVertexAttribArray(6);
+  glVertexAttribPointer(6, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat),
+                        (void *)(6 * sizeof(GLfloat)));
+
+  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+  unsigned int texture = loadTexture("../container2.png");
+  unsigned int spec_map = loadTexture("../container2_specular.png");
+
   ShapeBuffer lightCube;
   init_shapes(&lightCube);
   Shape LightSource;
-  make_shape(&LightSource, (vec3){4, 5, 3}, "cube",
+  make_shape(&LightSource, (vec3){0.0f, 0.0f, 0.0f}, "cube",
              (float[]){1.0f, 1.0f, 1.0f});
 
   glfwSetInputMode(window.handle, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -117,14 +188,27 @@ int main() {
   mat4x4 projection;
   mat4x4_perspective(projection, M_PI / 4,
                      ((float)window.width / (float)window.height), 0.1f,
-                     100.0f);
+                     600.0f);
   mat4x4 view;
+  glEnable(GL_DEPTH_TEST);
+
+  shader_use(&shader);
+  GLenum err;
+  while ((err = glGetError()) != GL_NO_ERROR) {
+    printf("OpenGL error: %d\n", err);
+  }
+  glUniform1i(glGetUniformLocation(shader.ID, "material.diffuse"), 0);
+  glUniform1i(glGetUniformLocation(shader.ID, "material.specular"), 1);
+  glUniform1f(glGetUniformLocation(shader.ID, "material.shininess"), 32.0f);
 
   while (!glfwWindowShouldClose(window.handle)) {
     float currentFrame = glfwGetTime();
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
-    // Render to screen
+
+    vec3_dup(LightSource.pos, (vec3){-cos(currentFrame), 8 * sin(currentFrame),
+                                     4 * cos(currentFrame) + 1});
+    //  Render to screen
     glViewport(0, 0, window.width, window.height);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -143,23 +227,38 @@ int main() {
     shader_set_mat4(&shader, "licol", (float *)(vec3){1.0f, 1.0f, 1.0f});
     shader_set_mat4(&shader, "lipos", (float *)LightSource.pos);
 
+    shader_set_mat4(&shader, "viewpos", (float *)camera.position);
+
     shader_use(&lightShader);
     shader_set_mat4(&lightShader, "view", (float *)view);
     shader_set_mat4(&lightShader, "proj", (float *)projection);
     draw_shape(&LightSource, &lightCube, &lightShader);
 
     shader_use(&shader);
-    for (int i = 0; i < 5; i++) {
-      draw_shape(&cube[i], &cubes, &shader);
+    GLenum err;
+    while ((err = glGetError()) != GL_NO_ERROR) {
+      printf("OpenGL error: %d\n", err);
     }
+    mat4x4 model;
+    mat4x4_translate(model, 1.0f, 1.0f, 1.0f);
+    shader_set_mat4(&shader, "model", (float *)model);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, spec_map);
+
+    glBindVertexArray(vao);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+    glBindVertexArray(0);
 
     glfwSwapBuffers(window.handle);
     glfwPollEvents();
   }
 
-  clean_buffers(&cubes);
   clean_buffers(&lightCube);
   // glDeleteProgram(shaderProgram);
+
   window_cleanup(&window);
   glfwTerminate();
   return 0;

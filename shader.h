@@ -3,6 +3,7 @@
 #define SHADER_H
 
 #include <glad/gl.h>
+#include "linmath/linmath.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -11,8 +12,11 @@ typedef struct {
   int model;
   int view;
   int projection;
-  int lightColour;
+  int lightamb;
+  int lightdiff;
+  int lightspec;
   int lightPos;
+  int viewPos;
 } UniformLocations;
 
 typedef struct {
@@ -79,7 +83,11 @@ void shader_init(Shader *shader, const char *vertexPath,
   shader->Locs.model = glGetUniformLocation(shader->ID, "model");
   shader->Locs.view = glGetUniformLocation(shader->ID, "view");
   shader->Locs.projection = glGetUniformLocation(shader->ID, "proj");
-  shader->Locs.lightColour = glGetUniformLocation(shader->ID, "lightColour");
+  shader->Locs.lightamb = glGetUniformLocation(shader->ID, "light.ambient");
+  shader->Locs.lightdiff = glGetUniformLocation(shader->ID, "light.diffuse");
+  shader->Locs.lightspec = glGetUniformLocation(shader->ID, "light.specular");
+  shader->Locs.lightPos = glGetUniformLocation(shader->ID, "light.position");
+  shader->Locs.viewPos = glGetUniformLocation(shader->ID, "viewPos");
 
   glDeleteShader(fragmentShader.ID);
   glDeleteShader(vertexShader.ID);
@@ -96,9 +104,13 @@ void shader_set_mat4(Shader *shader, const char *name, float *value) {
   } else if (strcmp(name, "proj") == 0) {
     glUniformMatrix4fv(shader->Locs.projection, 1, GL_FALSE, value);
   } else if (strcmp(name, "licol") == 0) {
-    glUniform3fv(shader->Locs.lightColour, 1, value);
+    glUniform3fv(shader->Locs.lightdiff, 1, value);
+    glUniform3fv(shader->Locs.lightspec, 1, (float *)(vec3){1.0f, 1.0f, 1.0f});
+    glUniform3fv(shader->Locs.lightamb, 1, (float *)(vec3){0.2f, 0.2f, 0.2f});
   } else if (strcmp(name, "lipos") == 0) {
     glUniform3fv(shader->Locs.lightPos, 1, value);
+  } else if (strcmp(name, "viewpos") == 0) {
+    glUniform3fv(shader->Locs.viewPos, 1, value);
   }
 }
 
