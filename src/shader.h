@@ -17,6 +17,9 @@ typedef struct {
   int lightspec;
   int lightPos;
   int viewPos;
+  int constant;
+  int linear;
+  int quadratic;
 } UniformLocations;
 
 typedef struct {
@@ -88,6 +91,9 @@ void shader_init(Shader *shader, const char *vertexPath,
   shader->Locs.lightspec = glGetUniformLocation(shader->ID, "light.specular");
   shader->Locs.lightPos = glGetUniformLocation(shader->ID, "light.position");
   shader->Locs.viewPos = glGetUniformLocation(shader->ID, "viewPos");
+  shader->Locs.constant = glGetUniformLocation(shader->ID, "light.constant");
+  shader->Locs.linear = glGetUniformLocation(shader->ID, "light.linear");
+  shader->Locs.quadratic = glGetUniformLocation(shader->ID, "light.quadratic");
 
   glDeleteShader(fragmentShader.ID);
   glDeleteShader(vertexShader.ID);
@@ -107,6 +113,9 @@ void shader_set_mat4(Shader *shader, const char *name, float *value) {
     glUniform3fv(shader->Locs.lightdiff, 1, value);
     glUniform3fv(shader->Locs.lightspec, 1, (float *)(vec3){1.0f, 1.0f, 1.0f});
     glUniform3fv(shader->Locs.lightamb, 1, (float *)(vec3){0.2f, 0.2f, 0.2f});
+    glUniform1f(shader->Locs.constant, 1.0f);
+    glUniform1f(shader->Locs.linear, 0.22);
+    glUniform1f(shader->Locs.quadratic, 0.20);
   } else if (strcmp(name, "lipos") == 0) {
     glUniform3fv(shader->Locs.lightPos, 1, value);
   } else if (strcmp(name, "viewpos") == 0) {

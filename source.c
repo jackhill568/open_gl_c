@@ -1,19 +1,22 @@
 #include <glad/gl.h>
 #include <GLFW/glfw3.h>
-#include "shape.h"
+#include "src/shape.h"
 #include <GL/gl.h>
 #include <linmath/linmath.h>
 #include <math.h>
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "camera.h"
-#include "shader.h"
-#include "window.h"
+#include <assimp/cimport.h>
+#include <assimp/postprocess.h>
+#include <assimp/scene.h>
+
+#include "src/camera.h"
+#include "src/shader.h"
+#include "src/window.h"
 #include <stdio.h>
 #define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
-
+#include "src/stb_image.h"
 Camera camera;
 float lastX = 400, lastY = 300;
 bool firstMouse = true;
@@ -141,11 +144,12 @@ int main() {
   glfwSetKeyCallback(window.handle, key_callback);
 
   Shader shader;
-  shader_init(&shader, "../shader.vert", "../shader.frag");
+  shader_init(&shader, "../shaders/shader.vert", "../shaders/shader.frag");
   camera_init(&camera);
 
   Shader lightShader;
-  shader_init(&lightShader, "../shader.vert", "../lightShader.frag");
+  shader_init(&lightShader, "../shaders/shader.vert",
+              "../shaders/lightShader.frag");
 
   GLuint vbo;
   GLuint vao;
@@ -171,8 +175,8 @@ int main() {
 
   glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-  unsigned int texture = loadTexture("../container2.png");
-  unsigned int spec_map = loadTexture("../container2_specular.png");
+  unsigned int texture = loadTexture("../assests/container2.png");
+  unsigned int spec_map = loadTexture("../assests/container2_specular.png");
 
   ShapeBuffer lightCube;
   init_shapes(&lightCube);
@@ -206,8 +210,9 @@ int main() {
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
 
-    vec3_dup(LightSource.pos, (vec3){-cos(currentFrame), 8 * sin(currentFrame),
-                                     4 * cos(currentFrame) + 1});
+    vec3_dup(LightSource.pos,
+             (vec3){-2 * cos(currentFrame), 8 * sin(currentFrame),
+                    8 * cos(currentFrame) + 1});
     //  Render to screen
     glViewport(0, 0, window.width, window.height);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
