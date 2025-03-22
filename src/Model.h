@@ -95,7 +95,7 @@ Texture *loadMaterialTextures(struct aiMaterial *mat, enum aiTextureType type, c
   *numTextures = textureCount;
   return textures;
 }
-Mesh processMesh(struct aiMesh *mesh, const struct aiScene *scene) {
+Mesh processMesh(struct aiMesh *mesh, const struct aiScene *scene, Model *model) {
   Vertex *vertices;
   unsigned int numVertices;
   unsigned int *indices;
@@ -136,14 +136,14 @@ Mesh processMesh(struct aiMesh *mesh, const struct aiScene *scene) {
       struct aiMaterial *material = scene->mMaterials[mesh->mMaterialIndex];
       unsigned int foundTextures;
       Texture *diffuseMaps = loadMaterialTextures(material,
-                                                  aiTextureType_DIFFUSE, "texture_diffuse", &foundTextures, "asdad");
+                                                  aiTextureType_DIFFUSE, "texture_diffuse", &foundTextures, model->directory);
 
       for (int i = 0; i < foundTextures; i++) {
         addElement((void **)textures, &numTextures, sizeof(Texture), &diffuseMaps[i]);
       };
       foundTextures = 0;
       Texture *specularMaps = loadMaterialTextures(material,
-                                                   aiTextureType_SPECULAR, "texture_specular", &foundTextures, "asdasdasda");
+                                                   aiTextureType_SPECULAR, "texture_specular", &foundTextures, model->directory);
       for (int i = 0; i < foundTextures; i++) {
         addElement((void **)textures, &numTextures, sizeof(Texture), &specularMaps[i]);
       }
@@ -156,7 +156,7 @@ void processNode(struct aiNode *node, const struct aiScene *scene,
                  Model *model) {
   for (unsigned int i = 0; i < node->mNumMeshes; i++) {
     struct aiMesh *mesh = scene->mMeshes[node->mMeshes[i]];
-    Mesh newMesh = processMesh(mesh, scene);
+    Mesh newMesh = processMesh(mesh, scene, model);
     addElement((void **)&model->meshes, &model->numMeshes, sizeof(Mesh), &newMesh);
   }
   // then do the same for each of its children
