@@ -111,7 +111,7 @@ unsigned int loadTexture(char const *path) {
 
     stbi_image_free(data);
   } else {
-    printf("texture fail");
+    printf("texture fail\n");
     stbi_image_free(data);
   }
 
@@ -175,8 +175,8 @@ int main() {
 
   glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-  unsigned int texture = loadTexture("../assests/container2.png");
-  unsigned int spec_map = loadTexture("../assests/container2_specular.png");
+  unsigned int texture = loadTexture("../assets/container2.png");
+  unsigned int spec_map = loadTexture("../assets/container2_specular.png");
 
   ShapeBuffer lightCube;
   init_shapes(&lightCube);

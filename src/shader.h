@@ -122,5 +122,5 @@ void shader_set_mat4(Shader *shader, const char *name, float *value) {
     glUniform3fv(shader->Locs.viewPos, 1, value);
   }
 }
-
+void shader_set_int(char *name, int value);
 #endif
