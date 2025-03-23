@@ -1,39 +1,15 @@
 #ifndef MESH_H
 #define MESH_H
 
+#include <glad/gl.h>
+#include <GLFW/glfw3.h>
+#include "helpers.h"
 #include "shader.h"
 #include <linmath/linmath.h>
 #include <stddef.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
-
-typedef struct {
-  vec3 position;
-  vec3 normal;
-  vec2 TexCoords;
-} Vertex;
-
-typedef struct {
-  unsigned int id;
-  char *type;
-  char *path;
-} Texture;
-
-typedef struct {
-  Vertex *vertices;
-  unsigned int *indices;
-  Texture *textures;
-  unsigned int VAO, VBO, EBO;
-  unsigned int numVertices, numIndices, numTextures;
-} Mesh;
-
-Mesh create_Mesh(Mesh mesh, Vertex *vertices, unsigned int *indices,
-                 Texture *textures) {
-  mesh.vertices = vertices;
-  mesh.indices = indices;
-  mesh.textures = textures;
-  return mesh;
-};
 
 void setupMesh(Mesh *mesh) {
   glGenVertexArrays(1, &mesh->VAO);
@@ -65,34 +41,139 @@ void setupMesh(Mesh *mesh) {
   glBindVertexArray(0);
 };
 void DrawMesh(Shader *shader, Mesh *mesh) {
+  if (mesh == NULL || shader == NULL) {
+    fprintf(stderr, "Invalid mesh or shader in DrawMesh\n");
+    return;
+  }
+
+  // Check if VAO is valid
+  if (mesh->VAO == 0) {
+    fprintf(stderr, "Mesh not properly set up. VAO is 0.\n");
+    return;
+  }
+
   unsigned int diffuseNr = 1;
   unsigned int specularNr = 1;
-  for (unsigned int i = 0; i < mesh->numTextures; i++) {
-    glActiveTexture(GL_TEXTURE0 +
-                    i); // activate proper texture unit before binding
-    // retrieve texture number (the N in diffuse_textureN)
-    char number[3];
-    char name[17];
-    strcpy(name, mesh->textures[i].type);
 
-    if (strcmp(name, "texture_diffuse") == 0) {
-      sprintf(number, "%d", diffuseNr++);
-    } else if (strcmp(name, "texture_specular") == 0) {
-      sprintf(number, "%d", specularNr++);
+  // Process textures if they exist
+  if (mesh->textures != NULL) {
+    struct Node *temp = mesh->textures;
+    int i = 0;
+
+    while (temp != NULL && temp->data != NULL) {
+      Texture *texture = (Texture *)temp->data;
+
+      // Validate texture data
+      if (texture->type == NULL) {
+        fprintf(stderr, "Texture type is NULL\n");
+        temp = temp->next;
+        continue;
+      }
+
+      glActiveTexture(GL_TEXTURE0 + i); // activate proper texture unit
+
+      // Create texture name for shader
+      char number[16] = {0};
+      char name[32] = {0};
+      strncpy(name, texture->type, sizeof(name) - 1);
+
+      if (strcmp(name, "texture_diffuse") == 0) {
+        snprintf(number, sizeof(number), "%d", diffuseNr++);
+      } else if (strcmp(name, "texture_specular") == 0) {
+        snprintf(number, sizeof(number), "%d", specularNr++);
+      }
+
+      char shaderName[64] = "material.";
+      strncat(shaderName, name, sizeof(shaderName) - strlen(shaderName) - 1);
+      strncat(shaderName, number, sizeof(shaderName) - strlen(shaderName) - 1);
+
+      // Debug output
+      printf("Setting shader uniform: %s = %d\n", shaderName, i);
+
+      shader_set_int(shader, shaderName, i);
+
+      // Check for valid texture ID
+      if (texture->id > 0) {
+        glBindTexture(GL_TEXTURE_2D, texture->id);
+      } else {
+        fprintf(stderr, "Invalid texture ID: %u\n", texture->id);
+      }
+
+      i++;
+      temp = temp->next;
     }
-    char shaderName[28];
-    strcpy(shaderName, "material.");
-    strcpy(shaderName, name);
-    strcpy(shaderName, number);
-    shader_set_int(shaderName, i);
-    glBindTexture(GL_TEXTURE_2D, mesh->textures[i].id);
   }
+
   glActiveTexture(GL_TEXTURE0);
 
-  // draw mesh
+  // Draw mesh
   glBindVertexArray(mesh->VAO);
   glDrawElements(GL_TRIANGLES, mesh->numIndices, GL_UNSIGNED_INT, 0);
   glBindVertexArray(0);
 }
 
+void clean_mesh(Mesh *mesh) {
+  if (mesh == NULL) {
+    return;
+  }
+
+  // Clean up OpenGL resources
+  if (mesh->VAO != 0) {
+    glDeleteVertexArrays(1, &mesh->VAO);
+    mesh->VAO = 0;
+  }
+  if (mesh->VBO != 0) {
+    glDeleteBuffers(1, &mesh->VBO);
+    mesh->VBO = 0;
+  }
+  if (mesh->EBO != 0) {
+    glDeleteBuffers(1, &mesh->EBO);
+    mesh->EBO = 0;
+  }
+
+  // Free texture resources
+  struct Node *current = mesh->textures;
+  struct Node *next = NULL;
+
+  while (current != NULL) {
+    next = current->next;
+
+    Texture *texture = (Texture *)current->data;
+    if (texture != NULL) {
+      if (texture->path != NULL) {
+        free(texture->path);
+      }
+      if (texture->type != NULL) {
+        free(texture->type);
+      }
+    }
+
+    free(current->data);
+    free(current);
+    current = next;
+  }
+
+  // Free vertex and index data
+  if (mesh->vertices != NULL) {
+    free(mesh->vertices);
+    mesh->vertices = NULL;
+  }
+
+  if (mesh->indices != NULL) {
+    free(mesh->indices);
+    mesh->indices = NULL;
+  }
+
+  mesh->numVertices = 0;
+  mesh->numIndices = 0;
+  mesh->textures = NULL;
+}
+Mesh create_Mesh(Mesh mesh, Vertex *vertices, unsigned int *indices,
+                 Texture *textures) {
+
+  mesh.vertices = vertices;
+  mesh.indices = indices;
+  append(&mesh.textures, textures, sizeof(Texture));
+  return mesh;
+};
 #endif // !MESH_H

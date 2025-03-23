@@ -7,59 +7,19 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#include <assimp/cimport.h>
-#include <assimp/postprocess.h>
-#include <assimp/scene.h>
-
+#include "src/Model.h"
 #include "src/camera.h"
 #include "src/shader.h"
 #include "src/window.h"
+#include <assimp/cimport.h>
+#include <assimp/postprocess.h>
+#include <assimp/scene.h>
 #include <stdio.h>
-#define STB_IMAGE_IMPLEMENTATION
-#include "src/stb_image.h"
 Camera camera;
 float lastX = 400, lastY = 300;
 bool firstMouse = true;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
-
-float vertices[] = {
-    // positions          // normals           // texture coords
-    -0.5f, -0.5f, -0.5f, 0.0f,  0.0f,  -1.0f, 0.0f,  0.0f,  0.5f,  -0.5f,
-    -0.5f, 0.0f,  0.0f,  -1.0f, 1.0f,  0.0f,  0.5f,  0.5f,  -0.5f, 0.0f,
-    0.0f,  -1.0f, 1.0f,  1.0f,  0.5f,  0.5f,  -0.5f, 0.0f,  0.0f,  -1.0f,
-    1.0f,  1.0f,  -0.5f, 0.5f,  -0.5f, 0.0f,  0.0f,  -1.0f, 0.0f,  1.0f,
-    -0.5f, -0.5f, -0.5f, 0.0f,  0.0f,  -1.0f, 0.0f,  0.0f,
-
-    -0.5f, -0.5f, 0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  0.0f,  0.5f,  -0.5f,
-    0.5f,  0.0f,  0.0f,  1.0f,  1.0f,  0.0f,  0.5f,  0.5f,  0.5f,  0.0f,
-    0.0f,  1.0f,  1.0f,  1.0f,  0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,
-    1.0f,  1.0f,  -0.5f, 0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  1.0f,
-    -0.5f, -0.5f, 0.5f,  0.0f,  0.0f,  1.0f,  0.0f,  0.0f,
-
-    -0.5f, 0.5f,  0.5f,  -1.0f, 0.0f,  0.0f,  1.0f,  0.0f,  -0.5f, 0.5f,
-    -0.5f, -1.0f, 0.0f,  0.0f,  1.0f,  1.0f,  -0.5f, -0.5f, -0.5f, -1.0f,
-    0.0f,  0.0f,  0.0f,  1.0f,  -0.5f, -0.5f, -0.5f, -1.0f, 0.0f,  0.0f,
-    0.0f,  1.0f,  -0.5f, -0.5f, 0.5f,  -1.0f, 0.0f,  0.0f,  0.0f,  0.0f,
-    -0.5f, 0.5f,  0.5f,  -1.0f, 0.0f,  0.0f,  1.0f,  0.0f,
-
-    0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  0.0f,  0.5f,  0.5f,
-    -0.5f, 1.0f,  0.0f,  0.0f,  1.0f,  1.0f,  0.5f,  -0.5f, -0.5f, 1.0f,
-    0.0f,  0.0f,  0.0f,  1.0f,  0.5f,  -0.5f, -0.5f, 1.0f,  0.0f,  0.0f,
-    0.0f,  1.0f,  0.5f,  -0.5f, 0.5f,  1.0f,  0.0f,  0.0f,  0.0f,  0.0f,
-    0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  1.0f,  0.0f,
-
-    -0.5f, -0.5f, -0.5f, 0.0f,  -1.0f, 0.0f,  0.0f,  1.0f,  0.5f,  -0.5f,
-    -0.5f, 0.0f,  -1.0f, 0.0f,  1.0f,  1.0f,  0.5f,  -0.5f, 0.5f,  0.0f,
-    -1.0f, 0.0f,  1.0f,  0.0f,  0.5f,  -0.5f, 0.5f,  0.0f,  -1.0f, 0.0f,
-    1.0f,  0.0f,  -0.5f, -0.5f, 0.5f,  0.0f,  -1.0f, 0.0f,  0.0f,  0.0f,
-    -0.5f, -0.5f, -0.5f, 0.0f,  -1.0f, 0.0f,  0.0f,  1.0f,
-
-    -0.5f, 0.5f,  -0.5f, 0.0f,  1.0f,  0.0f,  0.0f,  1.0f,  0.5f,  0.5f,
-    -0.5f, 0.0f,  1.0f,  0.0f,  1.0f,  1.0f,  0.5f,  0.5f,  0.5f,  0.0f,
-    1.0f,  0.0f,  1.0f,  0.0f,  0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
-    1.0f,  0.0f,  -0.5f, 0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f,  0.0f,
-    -0.5f, 0.5f,  -0.5f, 0.0f,  1.0f,  0.0f,  0.0f,  1.0f};
 
 static void key_callback(GLFWwindow *window, int key, int scancode, int action,
                          int mods) {
@@ -83,40 +43,7 @@ void key_process(Window window) {
     camera_process_keyboard(&camera, GLFW_KEY_D, deltaTime);
   }
 }
-unsigned int loadTexture(char const *path) {
-  unsigned int textureID;
-  glGenTextures(1, &textureID);
 
-  int width, height, nrComponents;
-  unsigned char *data = stbi_load(path, &width, &height, &nrComponents, 0);
-  if (data) {
-    GLenum format;
-    if (nrComponents == 1)
-      format = GL_RED;
-    else if (nrComponents == 3)
-      format = GL_RGB;
-    else if (nrComponents == 4)
-      format = GL_RGBA;
-
-    glBindTexture(GL_TEXTURE_2D, textureID);
-    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format,
-                 GL_UNSIGNED_BYTE, data);
-    glGenerateMipmap(GL_TEXTURE_2D);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-                    GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    stbi_image_free(data);
-  } else {
-    printf("texture fail\n");
-    stbi_image_free(data);
-  }
-
-  return textureID;
-}
 void mouse_callback(GLFWwindow *window, double xpos, double ypos) {
   if (firstMouse) {
     lastX = xpos;
@@ -135,7 +62,6 @@ void mouse_callback(GLFWwindow *window, double xpos, double ypos) {
 }
 
 int main() {
-
   Window window;
   if (!window_init(&window, 2560, 1440, "Window")) {
     glfwTerminate();
@@ -151,38 +77,13 @@ int main() {
   shader_init(&lightShader, "../shaders/shader.vert",
               "../shaders/lightShader.frag");
 
-  GLuint vbo;
-  GLuint vao;
-  glGenBuffers(1, &vbo);
-  glGenVertexArrays(1, &vao);
-
-  glBindVertexArray(vao);
-  glBindBuffer(GL_ARRAY_BUFFER, vbo);
-
-  // position
-  glEnableVertexAttribArray(0);
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat),
-                        (void *)0);
-
-  // Normals
-  glEnableVertexAttribArray(3);
-  glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat),
-                        (void *)(3 * sizeof(GLfloat)));
-  // texure coords
-  glEnableVertexAttribArray(6);
-  glVertexAttribPointer(6, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat),
-                        (void *)(6 * sizeof(GLfloat)));
-
-  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-  unsigned int texture = loadTexture("../assets/container2.png");
-  unsigned int spec_map = loadTexture("../assets/container2_specular.png");
-
   ShapeBuffer lightCube;
   init_shapes(&lightCube);
   Shape LightSource;
   make_shape(&LightSource, (vec3){0.0f, 0.0f, 0.0f}, "cube",
              (float[]){1.0f, 1.0f, 1.0f});
+  Model shark;
+  loadModel("../assets/smallShark.fbx", &shark);
 
   glfwSetInputMode(window.handle, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
   glfwSetCursorPosCallback(window.handle, mouse_callback);
@@ -201,18 +102,13 @@ int main() {
   while ((err = glGetError()) != GL_NO_ERROR) {
     printf("OpenGL error: %d\n", err);
   }
-  glUniform1i(glGetUniformLocation(shader.ID, "material.diffuse"), 0);
-  glUniform1i(glGetUniformLocation(shader.ID, "material.specular"), 1);
-  glUniform1f(glGetUniformLocation(shader.ID, "material.shininess"), 32.0f);
 
   while (!glfwWindowShouldClose(window.handle)) {
     float currentFrame = glfwGetTime();
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
 
-    vec3_dup(LightSource.pos,
-             (vec3){-2 * cos(currentFrame), 8 * sin(currentFrame),
-                    8 * cos(currentFrame) + 1});
+    vec3_dup(LightSource.pos, (vec3){-2 * cos(currentFrame), 8 * sin(currentFrame), 8 * cos(currentFrame) + 1});
     //  Render to screen
     glViewport(0, 0, window.width, window.height);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -248,14 +144,7 @@ int main() {
     mat4x4_translate(model, 1.0f, 1.0f, 1.0f);
     shader_set_mat4(&shader, "model", (float *)model);
 
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, spec_map);
-
-    glBindVertexArray(vao);
-    glDrawArrays(GL_TRIANGLES, 0, 36);
-    glBindVertexArray(0);
+    DrawModel(&shader, &shark);
 
     glfwSwapBuffers(window.handle);
     glfwPollEvents();
@@ -263,7 +152,7 @@ int main() {
 
   clean_buffers(&lightCube);
   // glDeleteProgram(shaderProgram);
-
+  clean_model(&shark);
   window_cleanup(&window);
   glfwTerminate();
   return 0;

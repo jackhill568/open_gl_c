@@ -1,19 +1,16 @@
 #ifndef MODEL_H
 #define MODEL_H
+#include <glad/gl.h>
+#include <GLFW/glfw3.h>
 #include "Mesh.h"
 #include <assimp/cimport.h>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 #include <linmath/linmath.h>
+#include <stdio.h>
+#include <stdlib.h>
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
-
-typedef struct {
-  Mesh *meshes;
-  unsigned int numMeshes;
-  char *directory;
-
-} Model;
 
 unsigned int TextureFromFile(const char *path, const char *directory) {
   char fullPath[512];
@@ -56,27 +53,37 @@ unsigned int TextureFromFile(const char *path, const char *directory) {
   return textureID;
 }
 
-void addElement(void **arr, unsigned int *size, size_t element_size,
-                void *newElement) {
-  void *temp = realloc(*arr, (*size + 1) * element_size);
-  if (temp == NULL) {
-    fprintf(stderr, "Memory allocation failed!\n");
-    exit(1);
-  }
-  *arr = temp;
-  memcpy((char *)(*arr) + (*size * element_size), newElement, element_size);
-
-  (*size)++;
-}
-
 void DrawModel(Shader *shader, Model *model) {
-  for (unsigned int i = 0; i < model->numMeshes; i++)
-    DrawMesh(shader, &model->meshes[i]);
+  if (shader == NULL || model == NULL) {
+    fprintf(stderr, "Invalid shader or model in DrawModel\n");
+    return;
+  }
+
+  struct Node *temp = model->meshes;
+  while (temp != NULL) {
+    Mesh *mesh = (Mesh *)temp->data;
+    if (mesh != NULL) {
+      // Skip meshes with invalid VAO
+      if (mesh->VAO == 0) {
+        fprintf(stderr, "Warning: Mesh with VAO=0 found, skipping draw\n");
+        temp = temp->next;
+        continue;
+      }
+
+      // Draw the mesh
+      DrawMesh(shader, mesh);
+    }
+    temp = temp->next;
+  }
 }
 
-Texture *loadMaterialTextures(struct aiMaterial *mat, enum aiTextureType type, const char *typeName, unsigned int *numTextures, const char *directory) {
+Texture *loadMaterialTextures(struct aiMaterial *mat, enum aiTextureType type, unsigned int *numTextures, const char *typeName, const char *directory, Model *model) {
   unsigned int textureCount = aiGetMaterialTextureCount(mat, type);
   Texture *textures = (Texture *)malloc(textureCount * sizeof(Texture));
+  int countTextures = 0;
+
+  printf("num of textures %d \n", textureCount);
+
   if (textures == NULL) {
     fprintf(stderr, "Memory allocation for textures failed!\n");
     return NULL;
@@ -84,24 +91,83 @@ Texture *loadMaterialTextures(struct aiMaterial *mat, enum aiTextureType type, c
   for (unsigned int i = 0; i < textureCount; i++) {
     struct aiString str;
     aiGetMaterialTexture(mat, type, i, &str, NULL, NULL, NULL, NULL, NULL, NULL);
+    int skip = 0;
+    for (unsigned int j = 0; j < countTextures; j++) {
+      if (strcmp(textures[j].path, str.data) == 0) {
+        textures[i] = textures[j];
+        countTextures++;
+        skip = 1;
+        break;
+      }
+    }
+    if (skip != 1) {
+      Texture texture;
+      texture.id = TextureFromFile(str.data, directory);
+      texture.type = strdup(typeName);
+      if (texture.type == NULL) {
+        fprintf(stderr, "Memory allocation for texture type failed!\n");
+        // Free previously allocated textures
+        for (unsigned int k = 0; k < i; k++) {
+          if (textures[k].type != NULL && k != i)
+            free(textures[k].type);
+          if (textures[k].path != NULL && k != i)
+            free(textures[k].path);
+        }
+        free(textures);
+        return NULL;
+      }
 
-    Texture texture;
-    texture.id = TextureFromFile(str.data, directory);
-    texture.type = strdup(typeName);
-    texture.path = strdup(str.data);
-    textures[i] = texture;
+      texture.path = strdup(str.data);
+      if (texture.path == NULL) {
+        fprintf(stderr, "Memory allocation for texture path failed!\n");
+        free(texture.type);
+        // Free previously allocated textures
+        for (unsigned int k = 0; k < i; k++) {
+          if (textures[k].type != NULL)
+            free(textures[k].type);
+          if (textures[k].path != NULL)
+            free(textures[k].path);
+        }
+        free(textures);
+        return NULL;
+      }
+    }
   }
-
   *numTextures = textureCount;
   return textures;
 }
+
 Mesh processMesh(struct aiMesh *mesh, const struct aiScene *scene, Model *model) {
-  Vertex *vertices;
-  unsigned int numVertices;
-  unsigned int *indices;
-  unsigned int numIndices;
-  Texture *textures;
-  unsigned int numTextures;
+  struct Node *textures;
+
+  Mesh newMesh;
+  newMesh.numVertices = 0;
+  newMesh.VAO = 0;
+  newMesh.VBO = 0;
+  newMesh.EBO = 0;
+
+  Vertex *vertices = (Vertex *)malloc(mesh->mNumVertices * sizeof(Vertex));
+  if (vertices == NULL) {
+    fprintf(stderr, "Memory allocation for vertices failed!\n");
+    newMesh.vertices = NULL;
+    newMesh.indices = NULL;
+    return newMesh;
+  }
+  unsigned int totalIndices = 0;
+  for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
+    totalIndices += mesh->mFaces[i].mNumIndices;
+  }
+  newMesh.numIndices = totalIndices;
+
+  // Allocate memory for indices
+  unsigned int *indices = (unsigned int *)malloc(totalIndices * sizeof(unsigned int));
+  if (indices == NULL) {
+    fprintf(stderr, "Memory allocation for indices failed!\n");
+    free(vertices);
+    newMesh.vertices = NULL;
+    newMesh.indices = NULL;
+    return newMesh;
+  }
 
   for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
     Vertex vertex;
@@ -122,42 +188,55 @@ Mesh processMesh(struct aiMesh *mesh, const struct aiScene *scene, Model *model)
       vertex.TexCoords[0] = 0.0f;
       vertex.TexCoords[1] = 0.0f;
     };
-
-    addElement((void **)vertices, &numVertices, sizeof(Vertex), &vertex);
+    vertices[i] = vertex;
+    newMesh.numVertices++;
   }
+
+  unsigned int indexCount = 0;
   for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
     struct aiFace face = mesh->mFaces[i];
-    for (unsigned int j = 0; j < face.mNumIndices; j++)
-      addElement((void **)indices, &numIndices, sizeof(unsigned int), &face.mIndices[j]);
-  }
-  // process material
-  if (mesh->mMaterialIndex >= 0) {
-    {
-      struct aiMaterial *material = scene->mMaterials[mesh->mMaterialIndex];
-      unsigned int foundTextures;
-      Texture *diffuseMaps = loadMaterialTextures(material,
-                                                  aiTextureType_DIFFUSE, "texture_diffuse", &foundTextures, model->directory);
-
-      for (int i = 0; i < foundTextures; i++) {
-        addElement((void **)textures, &numTextures, sizeof(Texture), &diffuseMaps[i]);
-      };
-      foundTextures = 0;
-      Texture *specularMaps = loadMaterialTextures(material,
-                                                   aiTextureType_SPECULAR, "texture_specular", &foundTextures, model->directory);
-      for (int i = 0; i < foundTextures; i++) {
-        addElement((void **)textures, &numTextures, sizeof(Texture), &specularMaps[i]);
-      }
+    for (unsigned int j = 0; j < face.mNumIndices; j++) {
+      indices[indexCount++] = face.mIndices[j];
     }
   }
 
-  return (Mesh){vertices, indices, textures};
+  newMesh.vertices = vertices;
+  newMesh.indices = indices;
+  // process material
+  //
+  unsigned int texturesFound = 0;
+  if (mesh->mMaterialIndex >= 0) {
+    {
+      struct aiMaterial *material = scene->mMaterials[mesh->mMaterialIndex];
+      Texture *diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, &texturesFound, "texture_diffuse", model->directory, model);
+
+      if (diffuseMaps != NULL && texturesFound > 0) {
+        for (unsigned int i = 0; i < texturesFound; i++) {
+          append(&newMesh.textures, &diffuseMaps[i], sizeof(Texture));
+        }
+        free(diffuseMaps);
+      }
+      texturesFound = 0;
+      Texture *specularMaps = loadMaterialTextures(material,
+                                                   aiTextureType_SPECULAR, &texturesFound, "texture_specular", model->directory, model);
+      if (specularMaps != NULL && texturesFound > 0) {
+        for (unsigned int i = 0; i < texturesFound; i++) {
+          append(&newMesh.textures, &specularMaps[i], sizeof(Texture));
+        }
+        free(specularMaps); // Free the array after copying data to linked list
+      }
+    }
+  }
+  return newMesh;
 }
 void processNode(struct aiNode *node, const struct aiScene *scene,
                  Model *model) {
   for (unsigned int i = 0; i < node->mNumMeshes; i++) {
     struct aiMesh *mesh = scene->mMeshes[node->mMeshes[i]];
     Mesh newMesh = processMesh(mesh, scene, model);
-    addElement((void **)&model->meshes, &model->numMeshes, sizeof(Mesh), &newMesh);
+    if (newMesh.vertices != NULL && newMesh.indices != NULL) {
+      append(&model->meshes, &newMesh, sizeof(Mesh));
+    }
   }
   // then do the same for each of its children
   for (unsigned int i = 0; i < node->mNumChildren; i++) {
@@ -166,21 +245,76 @@ void processNode(struct aiNode *node, const struct aiScene *scene,
 }
 
 void loadModel(char *path, Model *model) {
-  const struct aiScene *scene =
-      aiImportFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
+  model->meshes = NULL;
 
+  const struct aiScene *scene = aiImportFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
   if (!scene) {
     fprintf(stderr, "Error loading mesh: %s\n", aiGetErrorString());
     return;
   }
+
+  // Extract directory from path
   const char *lastSlash = strrchr(path, '/');
   if (lastSlash) {
     size_t dirLength = lastSlash - path;
-    char directory[dirLength + 1];
-    strncpy(directory, path, dirLength);
-    directory[dirLength] = '\0';
+    model->directory = malloc(dirLength + 1);
+    if (model->directory == NULL) {
+      fprintf(stderr, "Memory allocation for directory failed!\n");
+      aiReleaseImport(scene);
+      return;
+    }
+    strncpy(model->directory, path, dirLength);
+    model->directory[dirLength] = '\0';
+  } else {
+    model->directory = strdup(".");
+    if (model->directory == NULL) {
+      fprintf(stderr, "Memory allocation for directory failed!\n");
+      aiReleaseImport(scene);
+      return;
+    }
   }
+
   processNode(scene->mRootNode, scene, model);
+
+  struct Node *current = model->meshes;
+  while (current != NULL) {
+    Mesh *mesh = (Mesh *)current->data;
+    if (mesh != NULL) {
+      // Initialize VAO, VBO, EBO to 0
+      mesh->VAO = 0;
+      mesh->VBO = 0;
+      mesh->EBO = 0;
+      // Setup the mesh
+      setupMesh(mesh);
+
+      // Debug output to confirm mesh setup
+      printf("Mesh setup complete: VAO=%u, vertices=%u, indices=%u \n",
+             mesh->VAO, mesh->numVertices, mesh->numIndices);
+    }
+    current = current->next;
+  }
+
+  aiReleaseImport(scene);
+}
+void check_gl_error(const char *label) {
+  GLenum err;
+  while ((err = glGetError()) != GL_NO_ERROR) {
+    printf("OpenGL error at %s: 0x%04x\n", label, err);
+  }
+}
+void clean_model(Model *model) {
+  struct Node *current = model->meshes;
+  while (current != NULL) {
+    struct Node *next = current->next;
+    clean_mesh((Mesh *)current->data);
+    free(current->data);
+    free(current);
+    current = next;
+  }
+
+  free(model->directory);
+  model->meshes = NULL;
+  model->directory = NULL;
 }
 
 #endif
