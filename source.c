@@ -1,5 +1,6 @@
 #include <glad/gl.h>
 #include <GLFW/glfw3.h>
+#include "src/Mesh.h"
 #include "src/shape.h"
 #include <GL/gl.h>
 #include <linmath/linmath.h>
@@ -70,12 +71,12 @@ int main() {
   glfwSetKeyCallback(window.handle, key_callback);
 
   Shader shader;
-  shader_init(&shader, "../shaders/shader.vert", "../shaders/shader.frag");
+  shader_init(&shader, "../shaders/shader.vert.glsl", "../shaders/shader.frag.glsl");
   camera_init(&camera);
 
   Shader lightShader;
-  shader_init(&lightShader, "../shaders/shader.vert",
-              "../shaders/lightShader.frag");
+  shader_init(&lightShader, "../shaders/shader.vert.glsl",
+              "../shaders/lightShader.frag.glsl");
 
   ShapeBuffer lightCube;
   init_shapes(&lightCube);
@@ -84,6 +85,9 @@ int main() {
              (float[]){1.0f, 1.0f, 1.0f});
   Model shark;
   loadModel("../assets/smallShark.fbx", &shark);
+
+  Model Bird;
+  // loadModel("../assets/12248_Bird_v1_L2.obj", &Bird);
 
   glfwSetInputMode(window.handle, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
   glfwSetCursorPosCallback(window.handle, mouse_callback);
@@ -108,7 +112,7 @@ int main() {
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
 
-    vec3_dup(LightSource.pos, (vec3){-2 * cos(currentFrame), 8 * sin(currentFrame), 8 * cos(currentFrame) + 1});
+    vec3_dup(LightSource.pos, (vec3){-2 * cos(currentFrame) + 20, 8 * sin(currentFrame) + 40, 8 * cos(currentFrame) + 45});
     //  Render to screen
     glViewport(0, 0, window.width, window.height);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -119,7 +123,7 @@ int main() {
     int width, height;
     glfwGetFramebufferSize(window.handle, &width, &height);
     float aspect = (float)width / (float)height;
-    mat4x4_perspective(projection, M_PI / 4, aspect, 0.1f, 100.0f);
+    mat4x4_perspective(projection, M_PI / 4, aspect, 0.1f, 300.0f);
 
     camera_get_view_matrix(&camera, view);
 
@@ -145,6 +149,7 @@ int main() {
     shader_set_mat4(&shader, "model", (float *)model);
 
     DrawModel(&shader, &shark);
+    // DrawModel(&shader, &Bird);
 
     glfwSwapBuffers(window.handle);
     glfwPollEvents();
@@ -153,6 +158,8 @@ int main() {
   clean_buffers(&lightCube);
   // glDeleteProgram(shaderProgram);
   clean_model(&shark);
+
+  // clean_model(&Bird);
   window_cleanup(&window);
   glfwTerminate();
   return 0;

@@ -114,8 +114,8 @@ void shader_set_mat4(Shader *shader, const char *name, float *value) {
     glUniform3fv(shader->Locs.lightspec, 1, (float *)(vec3){1.0f, 1.0f, 1.0f});
     glUniform3fv(shader->Locs.lightamb, 1, (float *)(vec3){0.2f, 0.2f, 0.2f});
     glUniform1f(shader->Locs.constant, 1.0f);
-    glUniform1f(shader->Locs.linear, 0.22);
-    glUniform1f(shader->Locs.quadratic, 0.20);
+    glUniform1f(shader->Locs.linear, 0.08);
+    glUniform1f(shader->Locs.quadratic, 0.032);
   } else if (strcmp(name, "lipos") == 0) {
     glUniform3fv(shader->Locs.lightPos, 1, value);
   } else if (strcmp(name, "viewpos") == 0) {
