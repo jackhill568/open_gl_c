@@ -1,6 +1,4 @@
-#ifndef MESH_H
-#define MESH_H
-
+#include "Mesh.h"
 #include <glad/gl.h>
 #include <GLFW/glfw3.h>
 #include "helpers.h"
@@ -176,4 +174,3 @@ Mesh create_Mesh(Mesh mesh, Vertex *vertices, unsigned int *indices,
   append(&mesh.textures, textures, sizeof(Texture));
   return mesh;
 };
-#endif // !MESH_H

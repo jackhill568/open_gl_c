@@ -1,16 +1,14 @@
-#ifndef MODEL_H
-#define MODEL_H
+#include "Model.h"
 #include <glad/gl.h>
 #include <GLFW/glfw3.h>
 #include "Mesh.h"
+#include "stb_image.h"
 #include <assimp/cimport.h>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
 #include <linmath/linmath.h>
 #include <stdio.h>
 #include <stdlib.h>
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
 
 unsigned int TextureFromFile(const char *path, const char *directory) {
   char fullPath[512];
@@ -316,5 +314,3 @@ void clean_model(Model *model) {
   model->meshes = NULL;
   model->directory = NULL;
 }
-
-#endif

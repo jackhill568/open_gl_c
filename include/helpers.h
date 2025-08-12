@@ -7,23 +7,8 @@ struct Node {
   struct Node *next;
 };
 
-void append(struct Node **head, void *newData, size_t dataSize) {
-  struct Node *newNode = (struct Node *)malloc(sizeof(struct Node));
+void append(struct Node **head, void *newData, size_t dataSize);
 
-  newNode->data = malloc(dataSize);
-  memcpy(newNode->data, newData, dataSize);
-
-  newNode->next = NULL;
-  if (*head == NULL) {
-    *head = newNode;
-    return;
-  }
-  struct Node *temp = *head;
-  while (temp->next != NULL) {
-    temp = temp->next;
-  }
-  temp->next = newNode;
-}
 typedef struct {
   vec3 position;
   vec3 normal;

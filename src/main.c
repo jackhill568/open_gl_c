@@ -1,17 +1,17 @@
 #include <glad/gl.h>
 #include <GLFW/glfw3.h>
-#include "src/Mesh.h"
-#include "src/shape.h"
+#include "Mesh.h"
+#include "shape.h"
 #include <GL/gl.h>
 #include <linmath/linmath.h>
 #include <math.h>
 #include <stdbool.h>
 #include <stddef.h>
 
-#include "src/Model.h"
-#include "src/camera.h"
-#include "src/shader.h"
-#include "src/window.h"
+#include "Model.h"
+#include "camera.h"
+#include "shader.h"
+#include "window.h"
 #include <assimp/cimport.h>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
@@ -85,9 +85,6 @@ int main() {
              (float[]){1.0f, 1.0f, 1.0f});
   Model shark;
   loadModel("../assets/smallShark.fbx", &shark);
-
-  Model Bird;
-  // loadModel("../assets/12248_Bird_v1_L2.obj", &Bird);
 
   glfwSetInputMode(window.handle, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
   glfwSetCursorPosCallback(window.handle, mouse_callback);

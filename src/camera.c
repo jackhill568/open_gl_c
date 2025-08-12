@@ -1,22 +1,7 @@
-#ifndef CAMERA_H
-#define CAMERA_H
-
+#include "camera.h"
 #include <GLFW/glfw3.h>
 #include <linmath/linmath.h>
 #include <stdbool.h>
-
-typedef struct {
-  vec3 position;
-  vec3 front;
-  vec3 up;
-  vec3 right;
-  vec3 worldUp;
-  float yaw;
-  float pitch;
-  float movementSpeed;
-  float mouseSensitivity;
-  float zoom;
-} Camera;
 
 void camera_update_vectors(Camera *camera) {
   // Calculate new front vector
@@ -125,5 +110,3 @@ void camera_process_keyboard(Camera *camera, int direction, float deltaTime) {
     break;
   }
 }
-
-#endif

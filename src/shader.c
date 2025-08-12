@@ -1,31 +1,10 @@
 
-#ifndef SHADER_H
-#define SHADER_H
-
+#include "shader.h"
 #include <glad/gl.h>
 #include "linmath/linmath.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-typedef struct {
-  int model;
-  int view;
-  int projection;
-  int lightamb;
-  int lightdiff;
-  int lightspec;
-  int lightPos;
-  int viewPos;
-  int constant;
-  int linear;
-  int quadratic;
-} UniformLocations;
-
-typedef struct {
-  GLuint ID;
-  UniformLocations Locs;
-} Shader;
 
 void checkCompileErrors(GLuint shader, char *type) {
   GLint success;
@@ -126,4 +105,3 @@ void shader_set_int(Shader *shader, char *name, int value) {
 
   glUniform1f(glGetUniformLocation(shader->ID, name), value);
 }
-#endif
