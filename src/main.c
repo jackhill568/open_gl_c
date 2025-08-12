@@ -1,6 +1,5 @@
 #include <glad/gl.h>
 #include <GLFW/glfw3.h>
-#include "Mesh.h"
 #include "shape.h"
 #include <GL/gl.h>
 #include <linmath/linmath.h>
@@ -142,7 +141,7 @@ int main() {
       printf("OpenGL error: %d\n", err);
     }
     mat4x4 model;
-    mat4x4_translate(model, 1.0f, 1.0f, 1.0f);
+    mat4x4_translate(model, 7.0f, 1.0f, 1.0f);
     shader_set_mat4(&shader, "model", (float *)model);
 
     DrawModel(&shader, &shark);

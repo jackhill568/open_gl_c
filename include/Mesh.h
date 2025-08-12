@@ -8,6 +8,14 @@
 #include <linmath/linmath.h>
 #include <stddef.h>
 
+typedef struct {
+  Vertex *vertices;
+  unsigned int *indices;
+  struct Node *textures;
+  unsigned int VAO, VBO, EBO;
+  unsigned int numVertices, numIndices, numTextures;
+} Mesh;
+
 void setupMesh(Mesh *mesh);
 
 void DrawMesh(Shader *shader, Mesh *mesh);

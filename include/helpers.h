@@ -21,18 +21,5 @@ typedef struct {
   char *path;
 } Texture;
 
-typedef struct {
-  Vertex *vertices;
-  unsigned int *indices;
-  struct Node *textures;
-  unsigned int VAO, VBO, EBO;
-  unsigned int numVertices, numIndices, numTextures;
-} Mesh;
-
-typedef struct {
-  struct Node *meshes;
-  char *directory;
-} Model;
-
 #endif // !HELPERS_H
 #define HELPERS_H

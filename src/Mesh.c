@@ -63,7 +63,7 @@ void DrawMesh(Shader *shader, Mesh *mesh) {
 
       // Validate texture data
       if (texture->type == NULL) {
-        fprintf(stderr, "Texture type is NULL\n");
+        // fprintf(stderr, "Texture type is NULL\n");
         temp = temp->next;
         continue;
       }
@@ -137,14 +137,6 @@ void clean_mesh(Mesh *mesh) {
     next = current->next;
 
     Texture *texture = (Texture *)current->data;
-    if (texture != NULL) {
-      if (texture->path != NULL) {
-        free(texture->path);
-      }
-      if (texture->type != NULL) {
-        free(texture->type);
-      }
-    }
 
     free(current->data);
     free(current);

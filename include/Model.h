@@ -9,6 +9,11 @@
 #include <linmath/linmath.h>
 #define STB_IMAGE_IMPLEMENTATION
 
+typedef struct {
+  struct Node *meshes;
+  char *directory;
+} Model;
+
 unsigned int TextureFromFile(const char *path, const char *directory);
 
 void DrawModel(Shader *shader, Model *model);
