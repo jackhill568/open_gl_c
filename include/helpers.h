@@ -15,11 +15,8 @@ typedef struct {
   vec2 TexCoords;
 } Vertex;
 
-typedef struct {
-  unsigned int id;
-  char *type;
-  char *path;
-} Texture;
-
+void mat4x4_translate_vec3(mat4x4 M, vec3 v);
+void vec2_set(float *M, float *T);
+void vec3_set(float *M, float *T);
 #endif // !HELPERS_H
 #define HELPERS_H

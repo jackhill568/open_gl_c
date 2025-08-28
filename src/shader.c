@@ -40,8 +40,8 @@ char *readShaderFile(const char *filename) {
   fclose(file);
   return buffer;
 }
-void shader_init(Shader *shader, const char *vertexPath,
-                 const char *fragmentPath) {
+void compile_shader(Shader *shader, const char *vertexPath,
+                    const char *fragmentPath) {
 
   shader->ID = glCreateProgram();
 

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.15)
 
-project(Help)
+project(help)
 
 find_package(OpenGL REQUIRED)
 find_package(glfw3 REQUIRED)
@@ -21,6 +21,8 @@ set(SRC_FILES
     src/shader.c
     src/shape.c
     src/window.c
+    src/Texture.c
+    src/GameObject.c
 )
 add_executable(Help ${SRC_FILES})
 target_link_libraries(Help OpenGL::GL assimp::assimp glfw m)

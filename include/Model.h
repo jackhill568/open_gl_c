@@ -14,8 +14,6 @@ typedef struct {
   char *directory;
 } Model;
 
-unsigned int TextureFromFile(const char *path, const char *directory);
-
 void DrawModel(Shader *shader, Model *model);
 
 Texture *loadMaterialTextures(struct aiMaterial *mat, enum aiTextureType type, unsigned int *numTextures, const char *typeName, const char *directory, Model *model);

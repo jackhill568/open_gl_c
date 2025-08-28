@@ -31,8 +31,8 @@ void checkCompileErrors(GLuint shader, char *type);
 
 char *readShaderFile(const char *filename);
 
-void shader_init(Shader *shader, const char *vertexPath,
-                 const char *fragmentPath);
+void compile_shader(Shader *shader, const char *vertexPath,
+                    const char *fragmentPath);
 
 void shader_use(Shader *shader);
 

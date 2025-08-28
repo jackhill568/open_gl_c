@@ -1,7 +1,6 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 
-#include <GLFW/glfw3.h>
 #include <linmath/linmath.h>
 #include <stdbool.h>
 

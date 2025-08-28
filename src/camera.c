@@ -1,39 +1,7 @@
 #include "camera.h"
-#include <GLFW/glfw3.h>
+#include "Mesh.h"
 #include <linmath/linmath.h>
 #include <stdbool.h>
-
-void camera_update_vectors(Camera *camera) {
-  // Calculate new front vector
-  vec3 front;
-  front[0] =
-      cos(camera->yaw * M_PI / 180.0f) * cos(camera->pitch * M_PI / 180.0f);
-  front[1] = sin(camera->pitch * M_PI / 180.0f);
-  front[2] =
-      sin(camera->yaw * M_PI / 180.0f) * cos(camera->pitch * M_PI / 180.0f);
-  vec3_norm(camera->front, front);
-
-  // Recalculate right and up vectors
-  vec3_mul_cross(camera->right, camera->front, camera->worldUp);
-  vec3_norm(camera->right, camera->right);
-  vec3_mul_cross(camera->up, camera->right, camera->front);
-  vec3_norm(camera->up, camera->up);
-}
-void camera_init(Camera *camera) {
-  // Set default camera values
-
-  vec3 position = {0.0f, 0.0f, 3.0f};
-  vec3 worldUp = {0.0f, 1.0f, 0.0f};
-  vec3_dup(camera->position, position);
-  vec3_dup(camera->worldUp, worldUp);
-  camera->yaw = -90.0f;
-  camera->pitch = 0.0f;
-  camera->movementSpeed = 40.0f;
-  camera->mouseSensitivity = 0.1f;
-  camera->zoom = 45.0f;
-  camera_update_vectors(camera);
-}
-
 void camera_get_view_matrix(Camera *camera, mat4x4 view) {
   vec3 target;
   vec3_add(target, camera->position, camera->front);
@@ -67,6 +35,37 @@ void camera_get_view_matrix(Camera *camera, mat4x4 view) {
   view[3][1] = -vec3_mul_inner(yaxis, camera->position);
   view[3][2] = -vec3_mul_inner(zaxis, camera->position);
   view[3][3] = 1.0f;
+}
+void camera_update_vectors(Camera *camera) {
+  // Calculate new front vector
+  vec3 front;
+  front[0] =
+      cos(camera->yaw * M_PI / 180.0f) * cos(camera->pitch * M_PI / 180.0f);
+  front[1] = sin(camera->pitch * M_PI / 180.0f);
+  front[2] =
+      sin(camera->yaw * M_PI / 180.0f) * cos(camera->pitch * M_PI / 180.0f);
+  vec3_norm(camera->front, front);
+
+  // Recalculate right and up vectors
+  vec3_mul_cross(camera->right, camera->front, camera->worldUp);
+  vec3_norm(camera->right, camera->right);
+  vec3_mul_cross(camera->up, camera->right, camera->front);
+  vec3_norm(camera->up, camera->up);
+}
+void camera_init(Camera *camera) {
+  // Set default camera values
+
+  vec3 position = {0.0f, 100.0f, 30.0f};
+  vec3 worldUp = {0.0f, 1.0f, 0.0f};
+  vec3_set(camera->front, (vec3){1, 1, 0});
+  vec3_dup(camera->position, position);
+  vec3_dup(camera->worldUp, worldUp);
+  camera->yaw = -90.0f;
+  camera->pitch = 0.0f;
+  camera->movementSpeed = 40.0f;
+  camera->mouseSensitivity = 0.01f;
+  camera->zoom = 45.0f;
+  camera_update_vectors(camera);
 }
 
 void camera_process_mouse(Camera *camera, float xoffset, float yoffset,

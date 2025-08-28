@@ -3,6 +3,7 @@
 
 #include <glad/gl.h>
 #include <GLFW/glfw3.h>
+#include "Texture.h"
 #include "helpers.h"
 #include "shader.h"
 #include <linmath/linmath.h>

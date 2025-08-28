@@ -1,5 +1,6 @@
 #include <glad/gl.h>
 #include <GLFW/glfw3.h>
+#include "Mesh.h"
 #include "shape.h"
 #include <GL/gl.h>
 #include <linmath/linmath.h>
@@ -7,6 +8,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+#include "GameObject.h"
 #include "Model.h"
 #include "camera.h"
 #include "shader.h"
@@ -20,6 +22,7 @@ float lastX = 400, lastY = 300;
 bool firstMouse = true;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
+GameObject sha;
 
 static void key_callback(GLFWwindow *window, int key, int scancode, int action,
                          int mods) {
@@ -29,18 +32,46 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action,
   }
 }
 
+void update_camera_following_player(Camera *cam, GameObject *player) {
+  float distanceBack = 100.0f;
+  float heightAbove = 200.0f;
+
+  vec3 offset;
+  vec3_scale(offset, player->front, -distanceBack);
+
+  vec3 cameraPos;
+  vec3_add(cameraPos, player->position, offset);
+  cameraPos[1] += heightAbove;
+
+  vec3_dup(cam->position, cameraPos);
+
+  vec3 target;
+  vec3_add(target, player->position, (vec3){0.0f, 2.0f, 0.0f});
+  vec3_sub(cam->front, target, cam->position);
+  vec3_norm(cam->front, cam->front);
+
+  vec3_mul_cross(cam->right, cam->front, cam->worldUp);
+  vec3_norm(cam->right, cam->right);
+  vec3_mul_cross(cam->up, cam->right, cam->front);
+  vec3_norm(cam->up, cam->up);
+}
+
 void key_process(Window window) {
   if (glfwGetKey(window.handle, GLFW_KEY_W) == GLFW_PRESS) {
-    camera_process_keyboard(&camera, GLFW_KEY_W, deltaTime);
+    // camera_process_keyboard(&camera, GLFW_KEY_W, deltaTime);
+    obj_process_keyboard(&sha, GLFW_KEY_W, deltaTime);
   }
   if (glfwGetKey(window.handle, GLFW_KEY_S) == GLFW_PRESS) {
-    camera_process_keyboard(&camera, GLFW_KEY_S, deltaTime);
+    // camera_process_keyboard(&camera, GLFW_KEY_S, deltaTime);
+    obj_process_keyboard(&sha, GLFW_KEY_S, deltaTime);
   }
   if (glfwGetKey(window.handle, GLFW_KEY_A) == GLFW_PRESS) {
-    camera_process_keyboard(&camera, GLFW_KEY_A, deltaTime);
+    // camera_process_keyboard(&camera, GLFW_KEY_A, deltaTime);
+    obj_process_keyboard(&sha, GLFW_KEY_S, deltaTime);
   }
   if (glfwGetKey(window.handle, GLFW_KEY_D) == GLFW_PRESS) {
-    camera_process_keyboard(&camera, GLFW_KEY_D, deltaTime);
+    // camera_process_keyboard(&camera, GLFW_KEY_D, deltaTime);
+    obj_process_keyboard(&sha, GLFW_KEY_S, deltaTime);
   }
 }
 
@@ -58,7 +89,8 @@ void mouse_callback(GLFWwindow *window, double xpos, double ypos) {
   lastX = xpos;
   lastY = ypos;
 
-  camera_process_mouse(&camera, xoffset, yoffset, true);
+  // camera_process_mouse(&camera, xoffset, yoffset, true);
+  obj_process_mouse(&sha, xoffset, yoffset, true);
 }
 
 int main() {
@@ -70,20 +102,28 @@ int main() {
   glfwSetKeyCallback(window.handle, key_callback);
 
   Shader shader;
-  shader_init(&shader, "../shaders/shader.vert.glsl", "../shaders/shader.frag.glsl");
+  compile_shader(&shader, "../shaders/shader.vert.glsl", "../shaders/shader.frag.glsl");
   camera_init(&camera);
 
   Shader lightShader;
-  shader_init(&lightShader, "../shaders/shader.vert.glsl",
-              "../shaders/lightShader.frag.glsl");
+  compile_shader(&lightShader, "../shaders/shader.vert.glsl",
+                 "../shaders/lightShader.frag.glsl");
 
   ShapeBuffer lightCube;
   init_shapes(&lightCube);
   Shape LightSource;
   make_shape(&LightSource, (vec3){0.0f, 0.0f, 0.0f}, "cube",
              (float[]){1.0f, 1.0f, 1.0f});
-  Model shark;
-  loadModel("../assets/smallShark.fbx", &shark);
+
+  loadModel("../assets/smallShark.fbx", &sha.sprite);
+  vec3_set(sha.position, (vec3){0, 0, 0});
+  vec3_set(sha.front, (vec3){0, 0, 1});
+  sha.yaw = 90;
+  sha.pitch = 0;
+  obj_update_vectors(&sha);
+
+  Model floor;
+  loadModel("../assets/floor.fbx", &floor);
 
   glfwSetInputMode(window.handle, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
   glfwSetCursorPosCallback(window.handle, mouse_callback);
@@ -107,7 +147,6 @@ int main() {
     float currentFrame = glfwGetTime();
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
-
     vec3_dup(LightSource.pos, (vec3){-2 * cos(currentFrame) + 20, 8 * sin(currentFrame) + 40, 8 * cos(currentFrame) + 45});
     //  Render to screen
     glViewport(0, 0, window.width, window.height);
@@ -121,8 +160,6 @@ int main() {
     float aspect = (float)width / (float)height;
     mat4x4_perspective(projection, M_PI / 4, aspect, 0.1f, 300.0f);
 
-    camera_get_view_matrix(&camera, view);
-
     shader_set_mat4(&shader, "view", (float *)view);
     shader_set_mat4(&shader, "proj", (float *)projection);
     shader_set_mat4(&shader, "licol", (float *)(vec3){1.0f, 1.0f, 1.0f});
@@ -135,25 +172,25 @@ int main() {
     shader_set_mat4(&lightShader, "proj", (float *)projection);
     draw_shape(&LightSource, &lightCube, &lightShader);
 
-    shader_use(&shader);
     GLenum err;
     while ((err = glGetError()) != GL_NO_ERROR) {
       printf("OpenGL error: %d\n", err);
     }
-    mat4x4 model;
-    mat4x4_translate(model, 7.0f, 1.0f, 1.0f);
-    shader_set_mat4(&shader, "model", (float *)model);
-
-    DrawModel(&shader, &shark);
+    draw_obj(&sha, &shader);
     // DrawModel(&shader, &Bird);
-
+    mat4x4 model;
+    mat4x4_identity(model);
+    shader_set_mat4(&shader, "model", (float *)model);
+    DrawModel(&shader, &floor);
+    // update_camera_following_player(&camera, &sha);
+    camera_get_view_matrix(&camera, view);
     glfwSwapBuffers(window.handle);
     glfwPollEvents();
   }
 
   clean_buffers(&lightCube);
-  // glDeleteProgram(shaderProgram);
-  clean_model(&shark);
+  glDeleteProgram(shader.ID);
+  clean_model(&sha.sprite);
 
   // clean_model(&Bird);
   window_cleanup(&window);
