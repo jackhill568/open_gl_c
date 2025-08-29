@@ -1,22 +1,10 @@
 
-#ifndef SHADER_H
-#define SHADER_H
-
+#include "shader.h"
 #include <glad/gl.h>
+#include "linmath/linmath.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-typedef struct {
-  int model;
-  int view;
-  int projection;
-} UniformLocations;
-
-typedef struct {
-  GLuint ID;
-  UniformLocations Locs;
-} Shader;
 
 void checkCompileErrors(GLuint shader, char *type) {
   GLint success;
@@ -52,8 +40,8 @@ char *readShaderFile(const char *filename) {
   fclose(file);
   return buffer;
 }
-void shader_init(Shader *shader, const char *vertexPath,
-                 const char *fragmentPath) {
+void compile_shader(Shader *shader, const char *vertexPath,
+                    const char *fragmentPath) {
 
   shader->ID = glCreateProgram();
 
@@ -77,6 +65,14 @@ void shader_init(Shader *shader, const char *vertexPath,
   shader->Locs.model = glGetUniformLocation(shader->ID, "model");
   shader->Locs.view = glGetUniformLocation(shader->ID, "view");
   shader->Locs.projection = glGetUniformLocation(shader->ID, "proj");
+  shader->Locs.lightamb = glGetUniformLocation(shader->ID, "light.ambient");
+  shader->Locs.lightdiff = glGetUniformLocation(shader->ID, "light.diffuse");
+  shader->Locs.lightspec = glGetUniformLocation(shader->ID, "light.specular");
+  shader->Locs.lightPos = glGetUniformLocation(shader->ID, "light.position");
+  shader->Locs.viewPos = glGetUniformLocation(shader->ID, "viewPos");
+  shader->Locs.constant = glGetUniformLocation(shader->ID, "light.constant");
+  shader->Locs.linear = glGetUniformLocation(shader->ID, "light.linear");
+  shader->Locs.quadratic = glGetUniformLocation(shader->ID, "light.quadratic");
 
   glDeleteShader(fragmentShader.ID);
   glDeleteShader(vertexShader.ID);
@@ -90,9 +86,22 @@ void shader_set_mat4(Shader *shader, const char *name, float *value) {
     glUniformMatrix4fv(shader->Locs.model, 1, GL_FALSE, value);
   } else if (strcmp(name, "view") == 0) {
     glUniformMatrix4fv(shader->Locs.view, 1, GL_FALSE, value);
-  } else {
+  } else if (strcmp(name, "proj") == 0) {
     glUniformMatrix4fv(shader->Locs.projection, 1, GL_FALSE, value);
+  } else if (strcmp(name, "licol") == 0) {
+    glUniform3fv(shader->Locs.lightdiff, 1, value);
+    glUniform3fv(shader->Locs.lightspec, 1, (float *)(vec3){1.0f, 1.0f, 1.0f});
+    glUniform3fv(shader->Locs.lightamb, 1, (float *)(vec3){0.2f, 0.2f, 0.2f});
+    glUniform1f(shader->Locs.constant, 1.0f);
+    glUniform1f(shader->Locs.linear, 0.08);
+    glUniform1f(shader->Locs.quadratic, 0.032);
+  } else if (strcmp(name, "lipos") == 0) {
+    glUniform3fv(shader->Locs.lightPos, 1, value);
+  } else if (strcmp(name, "viewpos") == 0) {
+    glUniform3fv(shader->Locs.viewPos, 1, value);
   }
 }
+void shader_set_int(Shader *shader, char *name, int value) {
 
-#endif
+  glUniform1f(glGetUniformLocation(shader->ID, name), value);
+}

@@ -1,27 +1,11 @@
-#ifndef SHAPE_H
-#define SHAPE_H
+#include "shape.h"
 #include <glad/gl.h>
 #include <GLFW/glfw3.h>
 #include "linmath/linmath.h"
-#include "shader.h"
 #include <stdlib.h>
 #include <string.h>
 
 #include "shader.h"
-
-typedef struct {
-  GLfloat *vertices;
-  GLuint *indices;
-  int index_count;
-  vec3 pos;
-} Shape;
-
-typedef struct {
-  GLuint EBO;
-  GLuint VBO;
-  GLuint VAO;
-  int instanceCount;
-} ShapeBuffer;
 
 void get_cube_indices(GLuint *indices) {
   GLuint cube_indices[] = {
@@ -39,13 +23,13 @@ void get_cube_verts(GLfloat *vertices, float *colour) {
   GLfloat cube_vertices[] = {
       // Positions         // Colors
       -0.5f, -0.5f, -0.5f, colour[0], colour[1], colour[2],
-      0.5f,  -0.5f, -0.5f, colour[0], colour[1], colour[2],
-      0.5f,  0.5f,  -0.5f, colour[0], colour[1], colour[2],
-      -0.5f, 0.5f,  -0.5f, colour[0], colour[1], colour[2],
-      -0.5f, -0.5f, 0.5f,  colour[0], colour[1], colour[2],
-      0.5f,  -0.5f, 0.5f,  colour[0], colour[1], colour[2],
-      0.5f,  0.5f,  0.5f,  colour[0], colour[1], colour[2],
-      -0.5f, 0.5f,  0.5f,  colour[0], colour[1], colour[2]};
+      0.5f, -0.5f, -0.5f, colour[0], colour[1], colour[2],
+      0.5f, 0.5f, -0.5f, colour[0], colour[1], colour[2],
+      -0.5f, 0.5f, -0.5f, colour[0], colour[1], colour[2],
+      -0.5f, -0.5f, 0.5f, colour[0], colour[1], colour[2],
+      0.5f, -0.5f, 0.5f, colour[0], colour[1], colour[2],
+      0.5f, 0.5f, 0.5f, colour[0], colour[1], colour[2],
+      -0.5f, 0.5f, 0.5f, colour[0], colour[1], colour[2]};
   memcpy(vertices, cube_vertices, sizeof(cube_vertices));
 }
 
@@ -87,7 +71,7 @@ void make_shape(Shape *shape, vec3 pos, const char *type, float *colour) {
   }
 }
 
-void draw_cube(Shape *shape, ShapeBuffer *cube_buffer, Shader *shader) {
+void draw_shape(Shape *shape, ShapeBuffer *cube_buffer, Shader *shader) {
 
   mat4x4 model;
   mat4x4_translate(model, shape->pos[0], shape->pos[1], shape->pos[2]);
@@ -104,5 +88,3 @@ void clean_buffers(ShapeBuffer *shape_buffer) {
   glDeleteBuffers(1, &shape_buffer->VBO);
   glDeleteBuffers(1, &shape_buffer->EBO);
 }
-
-#endif

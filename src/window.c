@@ -1,17 +1,8 @@
-#ifndef WINDOW_H
-#define WINDOW_H
-
+#include "window.h"
 #include <glad/gl.h>
 #include <GLFW/glfw3.h>
 #include <stdbool.h>
 #include <stdio.h>
-
-typedef struct {
-  GLFWwindow *handle;
-  int width;
-  int height;
-  const char *title;
-} Window;
 
 bool window_init(Window *window, int width, int height, const char *title) {
 
@@ -27,6 +18,7 @@ bool window_init(Window *window, int width, int height, const char *title) {
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+  // glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
   window->handle = glfwCreateWindow(width, height, title, NULL, NULL);
   if (!window->handle) {
@@ -49,4 +41,3 @@ void window_cleanup(Window *window) {
     glfwDestroyWindow(window->handle);
   }
 }
-#endif

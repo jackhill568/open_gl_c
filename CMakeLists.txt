@@ -1,11 +1,28 @@
 cmake_minimum_required(VERSION 3.15)
 
-project(OpenglThing)
+project(help)
 
 find_package(OpenGL REQUIRED)
 find_package(glfw3 REQUIRED)
 
-add_executable(OpenglThing source.c /home/ja/CompSci/CThings/open_gl_c/src/gl.c)
-include_directories("/home/ja/CompSci/CThings/open_gl_c/include/")
+set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "/home/ja/CompSci/CThings/open_gl_c/include/assimp-install/")
 
-target_link_libraries(OpenglThing OpenGL::GL glfw m)
+find_package(assimp REQUIRED)
+
+include_directories("include/")
+
+set(SRC_FILES
+    src/camera.c
+    src/gl.c
+    src/helpers.c
+    src/main.c
+    src/Mesh.c
+    src/Model.c
+    src/shader.c
+    src/shape.c
+    src/window.c
+    src/Texture.c
+    src/GameObject.c
+)
+add_executable(Help ${SRC_FILES})
+target_link_libraries(Help OpenGL::GL assimp::assimp glfw m)

@@ -1,1 +1,4 @@
 build/
+.cache/*
+include/assimp/*
+include/assimp*
