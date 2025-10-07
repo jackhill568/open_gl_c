@@ -20,6 +20,17 @@ struct Light {
     float quadratic;
 };
 
+struct LightCaster {
+  vec3 direction;
+  vec3 ambient;
+  vec3 diffuse;
+  vec3 specular;
+
+  float constant;
+  float linear;
+  float quadratic;
+};
+
 uniform Light light;  
 
 struct Material {
@@ -32,7 +43,26 @@ struct Material {
   
 uniform Material material;
 
+vec3 CalcCasterLight(LightCaster light, vec3 normal, vec3 viewDir) {
+    vec3 lightDir = normalize(-light.direction);
 
+    float diff = max(dot(normal, lightDir), 0.0);
+
+    vec3 reflectDir = reflect(-lightDir, normal);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+
+    vec3 ambient1  = light.ambient  * vec3(texture(material.texture_diffuse1, TexCoords));
+    vec3 ambient2  = light.ambient  * vec3(texture(material.texture_diffuse2, TexCoords));
+    vec3 ambient3  = light.ambient  * vec3(texture(material.texture_diffuse3, TexCoords));
+
+    vec3 diffuse1  = light.diffuse  * diff * vec3(texture(material.texture_diffuse1, TexCoords));
+    vec3 diffuse2  = light.diffuse  * diff * vec3(texture(material.texture_diffuse2, TexCoords));
+    vec3 diffuse3  = light.diffuse  * diff * vec3(texture(material.texture_diffuse3, TexCoords));
+
+    vec3 specular1 = light.specular * spec * vec3(texture(material.texture_specular1, TexCoords));
+    vec3 specular2 = light.specular * spec * vec3(texture(material.texture_specular2, TexCoords));
+    return (ambient1 + ambient2 + ambient3 + diffuse1 +diffuse2 + diffuse3 +  specular1+specular2);
+}; 
 
 void main() {
     
