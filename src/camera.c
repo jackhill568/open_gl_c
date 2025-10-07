@@ -62,8 +62,8 @@ void camera_init(Camera *camera) {
   vec3_dup(camera->worldUp, worldUp);
   camera->yaw = -90.0f;
   camera->pitch = 0.0f;
-  camera->movementSpeed = 40.0f;
-  camera->mouseSensitivity = 0.01f;
+  camera->movementSpeed = 80.0f;
+  camera->mouseSensitivity = 0.04f;
   camera->zoom = 45.0f;
   camera_update_vectors(camera);
 }

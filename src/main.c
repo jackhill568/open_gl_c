@@ -32,46 +32,18 @@ static void key_callback(GLFWwindow *window, int key, int scancode, int action,
   }
 }
 
-void update_camera_following_player(Camera *cam, GameObject *player) {
-  float distanceBack = 100.0f;
-  float heightAbove = 200.0f;
-
-  vec3 offset;
-  vec3_scale(offset, player->front, -distanceBack);
-
-  vec3 cameraPos;
-  vec3_add(cameraPos, player->position, offset);
-  cameraPos[1] += heightAbove;
-
-  vec3_dup(cam->position, cameraPos);
-
-  vec3 target;
-  vec3_add(target, player->position, (vec3){0.0f, 2.0f, 0.0f});
-  vec3_sub(cam->front, target, cam->position);
-  vec3_norm(cam->front, cam->front);
-
-  vec3_mul_cross(cam->right, cam->front, cam->worldUp);
-  vec3_norm(cam->right, cam->right);
-  vec3_mul_cross(cam->up, cam->right, cam->front);
-  vec3_norm(cam->up, cam->up);
-}
-
 void key_process(Window window) {
   if (glfwGetKey(window.handle, GLFW_KEY_W) == GLFW_PRESS) {
-    // camera_process_keyboard(&camera, GLFW_KEY_W, deltaTime);
-    obj_process_keyboard(&sha, GLFW_KEY_W, deltaTime);
+    camera_process_keyboard(&camera, GLFW_KEY_W, deltaTime);
   }
   if (glfwGetKey(window.handle, GLFW_KEY_S) == GLFW_PRESS) {
-    // camera_process_keyboard(&camera, GLFW_KEY_S, deltaTime);
-    obj_process_keyboard(&sha, GLFW_KEY_S, deltaTime);
+    camera_process_keyboard(&camera, GLFW_KEY_S, deltaTime);
   }
   if (glfwGetKey(window.handle, GLFW_KEY_A) == GLFW_PRESS) {
-    // camera_process_keyboard(&camera, GLFW_KEY_A, deltaTime);
-    obj_process_keyboard(&sha, GLFW_KEY_S, deltaTime);
+    camera_process_keyboard(&camera, GLFW_KEY_A, deltaTime);
   }
   if (glfwGetKey(window.handle, GLFW_KEY_D) == GLFW_PRESS) {
-    // camera_process_keyboard(&camera, GLFW_KEY_D, deltaTime);
-    obj_process_keyboard(&sha, GLFW_KEY_S, deltaTime);
+    camera_process_keyboard(&camera, GLFW_KEY_D, deltaTime);
   }
 }
 
@@ -89,8 +61,7 @@ void mouse_callback(GLFWwindow *window, double xpos, double ypos) {
   lastX = xpos;
   lastY = ypos;
 
-  // camera_process_mouse(&camera, xoffset, yoffset, true);
-  obj_process_mouse(&sha, xoffset, yoffset, true);
+  camera_process_mouse(&camera, xoffset, yoffset, true);
 }
 
 int main() {
@@ -122,9 +93,6 @@ int main() {
   sha.pitch = 0;
   obj_update_vectors(&sha);
 
-  Model floor;
-  loadModel("../assets/floor.fbx", &floor);
-
   glfwSetInputMode(window.handle, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
   glfwSetCursorPosCallback(window.handle, mouse_callback);
 
@@ -133,7 +101,7 @@ int main() {
   mat4x4 projection;
   mat4x4_perspective(projection, M_PI / 4,
                      ((float)window.width / (float)window.height), 0.1f,
-                     600.0f);
+                     1600.0f);
   mat4x4 view;
   glEnable(GL_DEPTH_TEST);
 
@@ -151,6 +119,7 @@ int main() {
     //  Render to screen
     glViewport(0, 0, window.width, window.height);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClearColor(0.0f, 0.0f, 0.2f, 1.0f);
 
     key_process(window);
 
@@ -158,7 +127,7 @@ int main() {
     int width, height;
     glfwGetFramebufferSize(window.handle, &width, &height);
     float aspect = (float)width / (float)height;
-    mat4x4_perspective(projection, M_PI / 4, aspect, 0.1f, 300.0f);
+    mat4x4_perspective(projection, M_PI / 4, aspect, 0.1f, 1000.0f);
 
     shader_set_mat4(&shader, "view", (float *)view);
     shader_set_mat4(&shader, "proj", (float *)projection);
@@ -178,11 +147,6 @@ int main() {
     }
     draw_obj(&sha, &shader);
     // DrawModel(&shader, &Bird);
-    mat4x4 model;
-    mat4x4_identity(model);
-    shader_set_mat4(&shader, "model", (float *)model);
-    DrawModel(&shader, &floor);
-    // update_camera_following_player(&camera, &sha);
     camera_get_view_matrix(&camera, view);
     glfwSwapBuffers(window.handle);
     glfwPollEvents();
@@ -192,7 +156,6 @@ int main() {
   glDeleteProgram(shader.ID);
   clean_model(&sha.sprite);
 
-  // clean_model(&Bird);
   window_cleanup(&window);
   glfwTerminate();
   return 0;
