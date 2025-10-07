@@ -5,7 +5,7 @@ project(help)
 find_package(OpenGL REQUIRED)
 find_package(glfw3 REQUIRED)
 
-set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "/home/ja/CompSci/CThings/open_gl_c/include/assimp-install/")
+# set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "/home/ja/CompSci/CThings/open_gl_c/include/assimp-install/")
 
 find_package(assimp REQUIRED)
 
