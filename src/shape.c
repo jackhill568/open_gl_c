@@ -21,7 +21,6 @@ void get_cube_indices(GLuint *indices) {
 
 void get_cube_verts(GLfloat *vertices, float *colour) {
   GLfloat cube_vertices[] = {
-      // Positions         // Colors
       -0.5f, -0.5f, -0.5f, colour[0], colour[1], colour[2],
       0.5f, -0.5f, -0.5f, colour[0], colour[1], colour[2],
       0.5f, 0.5f, -0.5f, colour[0], colour[1], colour[2],
@@ -34,7 +33,6 @@ void get_cube_verts(GLfloat *vertices, float *colour) {
 }
 
 void init_shapes(ShapeBuffer *cube_buffer) {
-  // Generate buffers correctly
   glGenBuffers(1, &cube_buffer->VBO);
   glGenVertexArrays(1, &cube_buffer->VAO);
   glGenBuffers(1, &cube_buffer->EBO);
@@ -43,7 +41,6 @@ void init_shapes(ShapeBuffer *cube_buffer) {
   glBindBuffer(GL_ARRAY_BUFFER, cube_buffer->VBO);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cube_buffer->EBO);
 
-  // Enable vertex attributes
   glEnableVertexAttribArray(0);
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat),
                         (void *)0);

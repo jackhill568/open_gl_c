@@ -22,14 +22,12 @@ void DrawModel(Shader *shader, Model *model) {
   while (temp != NULL) {
     Mesh *mesh = (Mesh *)temp->data;
     if (mesh != NULL) {
-      // Skip meshes with invalid VAO
       if (mesh->VAO == 0) {
         fprintf(stderr, "Warning: Mesh with VAO=0 found, skipping draw\n");
         temp = temp->next;
         continue;
       }
 
-      // Draw the mesh
       DrawMesh(shader, mesh);
     }
     temp = temp->next;
@@ -44,7 +42,7 @@ Texture *loadMaterialTextures(struct aiMaterial *mat, enum aiTextureType type, u
   printf("num of textures %d \n", textureCount);
 
   if (textures == NULL) {
-    fprintf(stderr, "Memory allocation for textures failed!\n");
+    fprintf(stderr, "Memory allocation for textures failed\n");
     return NULL;
   }
   for (unsigned int i = 0; i < textureCount; i++) {
@@ -65,7 +63,6 @@ Texture *loadMaterialTextures(struct aiMaterial *mat, enum aiTextureType type, u
       texture.type = strdup(typeName);
       if (texture.type == NULL) {
         fprintf(stderr, "Memory allocation for texture type failed!\n");
-        // Free previously allocated textures
         for (unsigned int k = 0; k < i; k++) {
           if (textures[k].type != NULL && k != i)
             free(textures[k].type);
@@ -80,7 +77,6 @@ Texture *loadMaterialTextures(struct aiMaterial *mat, enum aiTextureType type, u
       if (texture.path == NULL) {
         fprintf(stderr, "Memory allocation for texture path failed!\n");
         free(texture.type);
-        // Free previously allocated textures
         for (unsigned int k = 0; k < i; k++) {
           if (textures[k].type != NULL)
             free(textures[k].type);
@@ -118,7 +114,6 @@ Mesh processMesh(struct aiMesh *mesh, const struct aiScene *scene, Model *model)
   }
   newMesh.numIndices = totalIndices;
 
-  // Allocate memory for indices
   unsigned int *indices = (unsigned int *)malloc(totalIndices * sizeof(unsigned int));
   if (indices == NULL) {
     fprintf(stderr, "Memory allocation for indices failed!\n");
@@ -139,8 +134,7 @@ Mesh processMesh(struct aiMesh *mesh, const struct aiScene *scene, Model *model)
     vertex.normal[1] = mesh->mNormals[i].y;
     vertex.normal[2] = mesh->mNormals[i].z;
 
-    if (mesh->mTextureCoords[0]) // does the mesh contain texture coordinates?
-    {
+    if (mesh->mTextureCoords[0]) {
       vertex.TexCoords[0] = mesh->mTextureCoords[0][i].x;
       vertex.TexCoords[1] = mesh->mTextureCoords[0][i].y;
     } else {
@@ -161,8 +155,6 @@ Mesh processMesh(struct aiMesh *mesh, const struct aiScene *scene, Model *model)
 
   newMesh.vertices = vertices;
   newMesh.indices = indices;
-  // process material
-  //
   unsigned int texturesFound = 0;
   if (mesh->mMaterialIndex >= 0) {
     {
@@ -180,15 +172,16 @@ Mesh processMesh(struct aiMesh *mesh, const struct aiScene *scene, Model *model)
                                                    aiTextureType_SPECULAR, &texturesFound, "texture_specular", model->directory, model);
       if (specularMaps != NULL && texturesFound > 0) {
         for (unsigned int i = 0; i < texturesFound; i++) {
+
           append(&newMesh.textures, &specularMaps[i], sizeof(Texture));
         }
-        free(specularMaps); // Free the array after copying data to linked list
+        free(specularMaps);
       }
 
       // shiny-ness
-      //if (aiGetMaterialFloat(material, AI_MATKEY_SHININESS, &newMesh.shininess) != AI_SUCCESS) {
-       // newMesh.shininess = 32.0f;
-      //}
+      if (aiGetMaterialFloat(material, AI_MATKEY_SHININESS, &newMesh.shininess) != AI_SUCCESS) {
+        newMesh.shininess = 32.0f;
+      }
     }
   }
   return newMesh;
@@ -202,7 +195,6 @@ void processNode(struct aiNode *node, const struct aiScene *scene,
       append(&model->meshes, &newMesh, sizeof(Mesh));
     }
   }
-  // then do the same for each of its children
   for (unsigned int i = 0; i < node->mNumChildren; i++) {
     processNode(node->mChildren[i], scene, model);
   }
@@ -217,7 +209,6 @@ void loadModel(char *path, Model *model) {
     return;
   }
 
-  // Extract directory from path
   const char *lastSlash = strrchr(path, '/');
   if (lastSlash) {
     size_t dirLength = lastSlash - path;
@@ -244,14 +235,11 @@ void loadModel(char *path, Model *model) {
   while (current != NULL) {
     Mesh *mesh = (Mesh *)current->data;
     if (mesh != NULL) {
-      // Initialize VAO, VBO, EBO to 0
       mesh->VAO = 0;
       mesh->VBO = 0;
       mesh->EBO = 0;
-      // Setup the mesh
       setupMesh(mesh);
 
-      // Debug output to confirm mesh setup
       printf("Mesh setup complete: VAO=%u, vertices=%u, indices=%u \n",
              mesh->VAO, mesh->numVertices, mesh->numIndices);
     }

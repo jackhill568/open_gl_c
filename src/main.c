@@ -1,7 +1,6 @@
 #include <glad/gl.h>
 #include <GLFW/glfw3.h>
 #include "Mesh.h"
-#include "shape.h"
 #include <GL/gl.h>
 #include <linmath/linmath.h>
 #include <math.h>
@@ -57,7 +56,7 @@ void mouse_callback(GLFWwindow *window, double xpos, double ypos) {
 
   float xoffset = xpos - lastX;
   float yoffset =
-      lastY - ypos; // Reversed since y-coordinates range from bottom to top
+      lastY - ypos;
   lastX = xpos;
   lastY = ypos;
 
@@ -66,7 +65,7 @@ void mouse_callback(GLFWwindow *window, double xpos, double ypos) {
 
 int main() {
   Window window;
-  if (!window_init(&window, 2560, 1440, "Window")) {
+  if (!window_init(&window, 1920, 1080, "Window")) {
     glfwTerminate();
     return -1;
   }
@@ -105,14 +104,12 @@ int main() {
     float currentFrame = glfwGetTime();
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
-    //  Render to screen
     glViewport(0, 0, window.width, window.height);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glClearColor(0.0f, 0.0f, 0.2f, 1.0f);
 
     key_process(window);
 
-    // incase of resizeing
     int width, height;
     glfwGetFramebufferSize(window.handle, &width, &height);
     float aspect = (float)width / (float)height;

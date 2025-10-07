@@ -1,15 +1,17 @@
 cmake_minimum_required(VERSION 3.15)
-
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 project(help)
 
 find_package(OpenGL REQUIRED)
 find_package(glfw3 REQUIRED)
 
-# set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "/home/ja/CompSci/CThings/open_gl_c/include/assimp-install/")
 
-find_package(assimp REQUIRED)
 
 include_directories("include/")
+
+set(ASSIMP_ROOT "$ENV{HOME}/.assimp")  
+link_directories(${ASSIMP_ROOT}/bin)
+include_directories(${ASSIMP_ROOT}/include)
 
 set(SRC_FILES
     src/camera.c
@@ -25,4 +27,4 @@ set(SRC_FILES
     src/GameObject.c
 )
 add_executable(Help ${SRC_FILES})
-target_link_libraries(Help OpenGL::GL assimp::assimp glfw m)
+target_link_libraries(Help OpenGL::GL assimp glfw m)

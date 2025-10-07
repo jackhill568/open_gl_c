@@ -6,7 +6,6 @@ void camera_get_view_matrix(Camera *camera, mat4x4 view) {
   vec3 target;
   vec3_add(target, camera->position, camera->front);
 
-  // Calculate camera coordinate system
   vec3 zaxis;
   vec3_sub(zaxis, camera->position, target);
   vec3_norm(zaxis, zaxis);
@@ -18,7 +17,6 @@ void camera_get_view_matrix(Camera *camera, mat4x4 view) {
   vec3 yaxis;
   vec3_mul_cross(yaxis, zaxis, xaxis);
 
-  // Create view matrix
   view[0][0] = xaxis[0];
   view[0][1] = yaxis[0];
   view[0][2] = zaxis[0];
@@ -37,7 +35,6 @@ void camera_get_view_matrix(Camera *camera, mat4x4 view) {
   view[3][3] = 1.0f;
 }
 void camera_update_vectors(Camera *camera) {
-  // Calculate new front vector
   vec3 front;
   front[0] =
       cos(camera->yaw * M_PI / 180.0f) * cos(camera->pitch * M_PI / 180.0f);
@@ -46,14 +43,12 @@ void camera_update_vectors(Camera *camera) {
       sin(camera->yaw * M_PI / 180.0f) * cos(camera->pitch * M_PI / 180.0f);
   vec3_norm(camera->front, front);
 
-  // Recalculate right and up vectors
   vec3_mul_cross(camera->right, camera->front, camera->worldUp);
   vec3_norm(camera->right, camera->right);
   vec3_mul_cross(camera->up, camera->right, camera->front);
   vec3_norm(camera->up, camera->up);
 }
 void camera_init(Camera *camera) {
-  // Set default camera values
 
   vec3 position = {0.0f, 100.0f, 30.0f};
   vec3 worldUp = {0.0f, 1.0f, 0.0f};

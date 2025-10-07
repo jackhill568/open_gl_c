@@ -24,14 +24,12 @@ void setupMesh(Mesh *mesh) {
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * mesh->numIndices,
                &mesh->indices[0], GL_STATIC_DRAW);
 
-  // vertex positions
   glEnableVertexAttribArray(0);
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *)0);
-  // vertex normals
+
   glEnableVertexAttribArray(1);
   glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex),
                         (void *)offsetof(Vertex, normal));
-  // vertex texture coords
   glEnableVertexAttribArray(2);
   glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
                         (void *)offsetof(Vertex, TexCoords));
@@ -44,7 +42,6 @@ void DrawMesh(Shader *shader, Mesh *mesh) {
     return;
   }
 
-  // Check if VAO is valid
   if (mesh->VAO == 0) {
     fprintf(stderr, "Mesh not properly set up. VAO is 0.\n");
     return;
@@ -53,7 +50,6 @@ void DrawMesh(Shader *shader, Mesh *mesh) {
   unsigned int diffuseNr = 1;
   unsigned int specularNr = 1;
 
-  // Process textures if they exist
   if (mesh->textures != NULL) {
     struct Node *temp = mesh->textures;
     int i = 0;
@@ -61,16 +57,14 @@ void DrawMesh(Shader *shader, Mesh *mesh) {
     while (temp != NULL && temp->data != NULL) {
       Texture *texture = (Texture *)temp->data;
 
-      // Validate texture data
       if (texture->type == NULL) {
         // fprintf(stderr, "Texture type is NULL\n");
         temp = temp->next;
         continue;
       }
 
-      glActiveTexture(GL_TEXTURE0 + i); // activate proper texture unit
+      glActiveTexture(GL_TEXTURE0 + i); 
 
-      // Create texture name for shader
       char number[16] = {0};
       char name[32] = {0};
       strncpy(name, texture->type, sizeof(name) - 1);
@@ -85,12 +79,10 @@ void DrawMesh(Shader *shader, Mesh *mesh) {
       strncat(shaderName, name, sizeof(shaderName) - strlen(shaderName) - 1);
       strncat(shaderName, number, sizeof(shaderName) - strlen(shaderName) - 1);
 
-      // Debug output
       printf("Setting shader uniform: %s = %d\n", shaderName, i);
 
       shader_set_int(shader, shaderName, i);
 
-      // Check for valid texture ID
       if (texture->id > 0) {
         glBindTexture(GL_TEXTURE_2D, texture->id);
       } else {
@@ -106,7 +98,6 @@ void DrawMesh(Shader *shader, Mesh *mesh) {
 
   glActiveTexture(GL_TEXTURE0);
 
-  // Draw mesh
   glBindVertexArray(mesh->VAO);
   glDrawElements(GL_TRIANGLES, mesh->numIndices, GL_UNSIGNED_INT, 0);
   glBindVertexArray(0);
@@ -117,7 +108,6 @@ void clean_mesh(Mesh *mesh) {
     return;
   }
 
-  // Clean up OpenGL resources
   if (mesh->VAO != 0) {
     glDeleteVertexArrays(1, &mesh->VAO);
     mesh->VAO = 0;
@@ -131,7 +121,6 @@ void clean_mesh(Mesh *mesh) {
     mesh->EBO = 0;
   }
 
-  // Free texture resources
   struct Node *current = mesh->textures;
   struct Node *next = NULL;
 
@@ -145,7 +134,6 @@ void clean_mesh(Mesh *mesh) {
     current = next;
   }
 
-  // Free vertex and index data
   if (mesh->vertices != NULL) {
     free(mesh->vertices);
     mesh->vertices = NULL;
