@@ -186,9 +186,9 @@ Mesh processMesh(struct aiMesh *mesh, const struct aiScene *scene, Model *model)
       }
 
       // shiny-ness
-      if (aiGetMaterialFloat(material, AI_MATKEY_SHININESS, &newMesh.shininess) != AI_SUCCESS) {
-        newMesh.shininess = 32.0f;
-      }
+      //if (aiGetMaterialFloat(material, AI_MATKEY_SHININESS, &newMesh.shininess) != AI_SUCCESS) {
+       // newMesh.shininess = 32.0f;
+      //}
     }
   }
   return newMesh;
