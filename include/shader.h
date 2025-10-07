@@ -40,4 +40,6 @@ void shader_set_mat4(Shader *shader, const char *name, float *value);
 
 void shader_set_int(Shader *shader, char *name, int value);
 
+void shader_set_float(Shader *shader, char *name, float value);
+
 #endif

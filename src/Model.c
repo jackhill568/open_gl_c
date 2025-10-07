@@ -4,8 +4,10 @@
 #include "Mesh.h"
 #include "stb_image.h"
 #include <assimp/cimport.h>
+#include <assimp/material.h>
 #include <assimp/postprocess.h>
 #include <assimp/scene.h>
+#include <assimp/types.h>
 #include <linmath/linmath.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -181,6 +183,11 @@ Mesh processMesh(struct aiMesh *mesh, const struct aiScene *scene, Model *model)
           append(&newMesh.textures, &specularMaps[i], sizeof(Texture));
         }
         free(specularMaps); // Free the array after copying data to linked list
+      }
+
+      // shiny-ness
+      if (aiGetMaterialFloat(material, AI_MATKEY_SHININESS, &newMesh.shininess) != AI_SUCCESS) {
+        newMesh.shininess = 32.0f;
       }
     }
   }

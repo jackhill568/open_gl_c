@@ -14,6 +14,7 @@ typedef struct {
   unsigned int *indices;
   struct Node *textures;
   unsigned int VAO, VBO, EBO;
+  float shininess;
   unsigned int numVertices, numIndices, numTextures;
 } Mesh;
 

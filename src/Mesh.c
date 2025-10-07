@@ -102,6 +102,8 @@ void DrawMesh(Shader *shader, Mesh *mesh) {
     }
   }
 
+  shader_set_float(shader, "material.shininess", mesh->shininess);
+
   glActiveTexture(GL_TEXTURE0);
 
   // Draw mesh

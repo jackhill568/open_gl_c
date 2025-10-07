@@ -76,16 +76,6 @@ int main() {
   compile_shader(&shader, "../shaders/shader.vert.glsl", "../shaders/shader.frag.glsl");
   camera_init(&camera);
 
-  Shader lightShader;
-  compile_shader(&lightShader, "../shaders/shader.vert.glsl",
-                 "../shaders/lightShader.frag.glsl");
-
-  ShapeBuffer lightCube;
-  init_shapes(&lightCube);
-  Shape LightSource;
-  make_shape(&LightSource, (vec3){0.0f, 0.0f, 0.0f}, "cube",
-             (float[]){1.0f, 1.0f, 1.0f});
-
   loadModel("../assets/smallShark.fbx", &sha.sprite);
   vec3_set(sha.position, (vec3){0, 0, 0});
   vec3_set(sha.front, (vec3){0, 0, 1});
@@ -115,7 +105,6 @@ int main() {
     float currentFrame = glfwGetTime();
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
-    vec3_dup(LightSource.pos, (vec3){-2 * cos(currentFrame) + 20, 8 * sin(currentFrame) + 40, 8 * cos(currentFrame) + 45});
     //  Render to screen
     glViewport(0, 0, window.width, window.height);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -131,28 +120,19 @@ int main() {
 
     shader_set_mat4(&shader, "view", (float *)view);
     shader_set_mat4(&shader, "proj", (float *)projection);
-    shader_set_mat4(&shader, "licol", (float *)(vec3){1.0f, 1.0f, 1.0f});
-    shader_set_mat4(&shader, "lipos", (float *)LightSource.pos);
 
     shader_set_mat4(&shader, "viewpos", (float *)camera.position);
-
-    shader_use(&lightShader);
-    shader_set_mat4(&lightShader, "view", (float *)view);
-    shader_set_mat4(&lightShader, "proj", (float *)projection);
-    draw_shape(&LightSource, &lightCube, &lightShader);
 
     GLenum err;
     while ((err = glGetError()) != GL_NO_ERROR) {
       printf("OpenGL error: %d\n", err);
     }
     draw_obj(&sha, &shader);
-    // DrawModel(&shader, &Bird);
     camera_get_view_matrix(&camera, view);
     glfwSwapBuffers(window.handle);
     glfwPollEvents();
   }
 
-  clean_buffers(&lightCube);
   glDeleteProgram(shader.ID);
   clean_model(&sha.sprite);
 

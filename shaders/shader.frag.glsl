@@ -31,6 +31,8 @@ struct LightCaster {
   float quadratic;
 };
 
+LightCaster Sun;
+
 uniform Light light;  
 
 struct Material {
@@ -39,6 +41,7 @@ struct Material {
   sampler2D texture_diffuse3;
   sampler2D texture_specular1;
   sampler2D texture_specular2;
+  float shininess;
 }; 
   
 uniform Material material;
@@ -49,7 +52,7 @@ vec3 CalcCasterLight(LightCaster light, vec3 normal, vec3 viewDir) {
     float diff = max(dot(normal, lightDir), 0.0);
 
     vec3 reflectDir = reflect(-lightDir, normal);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
 
     vec3 ambient1  = light.ambient  * vec3(texture(material.texture_diffuse1, TexCoords));
     vec3 ambient2  = light.ambient  * vec3(texture(material.texture_diffuse2, TexCoords));
@@ -65,7 +68,15 @@ vec3 CalcCasterLight(LightCaster light, vec3 normal, vec3 viewDir) {
 }; 
 
 void main() {
-    
+       Sun.direction = normalize(vec3(-0.2, -1.0, -0.3));
+    Sun.ambient = vec3(0.2, 0.2, 0.2);
+    Sun.diffuse = vec3(0.5, 0.5, 0.5);
+    Sun.specular = vec3(1.0, 1.0, 1.0);
+
+    Sun.constant = 1.0;
+    Sun.linear = 0.09;
+    Sun.quadratic = 0.032;   
+
     vec3 diffuse1 = vec3(texture(material.texture_diffuse1, TexCoords));
     vec3 diffuse2 = vec3(texture(material.texture_diffuse2, TexCoords));
     vec3 diffuse3 = vec3(texture(material.texture_diffuse3, TexCoords));
@@ -99,6 +110,8 @@ void main() {
     vec3 specular = light.specular * spec * sumSpec;
 
     vec3 result = (ambient* attenuation + diffuse* attenuation + specular* attenuation);
+
+    result += CalcCasterLight(Sun, norm, viewDir);
 
     fragment = vec4(result, 1.0);
 }
